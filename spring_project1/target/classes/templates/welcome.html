@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<title>會員首頁</title>
+<style>
+    body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+    h2 { color: #333; margin-bottom: 20px; }
+    p { margin-bottom: 10px; }
+    a { color: #007bff; text-decoration: none; font-weight: bold; }
+    a:hover { text-decoration: underline; }
+    form { margin-top: 20px; }
+    button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease; }
+    button[type="submit"] { background-color: #dc3545; color: white; }
+    button[type="submit"]:hover { background-color: #c82333; }
+</style>
+</head>
+<body>
+	<h2>
+		歡迎, <span th:text="${name}"></span>！
+	</h2>
+	<p>
+		<a th:href="@{/logout}">登出</a>
+	</p>
+	<p>
+        <a th:href="@{/change-password}">修改密碼</a>
+    </p>
+	
+	<form th:action="@{/delete-account}" method="post" onsubmit="return confirm('確定要刪除帳號嗎？此操作無法復原！');">
+		<button type="submit">刪除帳號</button>
+	</form>
+</body>
+</html>
