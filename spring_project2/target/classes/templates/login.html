@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>會員登入</title>
+<style>
+    body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+    h2 { color: #333; margin-bottom: 20px; }
+    form { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+    div { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+    input[type="email"], input[type="password"] { width: calc(100% - 22px); padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+    button { width: 100%; padding: 12px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 10px; transition: background-color 0.3s ease; }
+    button:hover { background-color: #0056b3; }
+    .error-message { color: red; font-size: 0.9em; margin-top: 5px; text-align: center; }
+    p { text-align: center; margin-top: 20px; }
+    a { color: #007bff; text-decoration: none; font-weight: bold; }
+    a:hover { text-decoration: underline; }
+    /* Google button specific styles from register.html */
+    .g_id_signin {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+</head>
+<body>
+	<h2>會員登入</h2>
+
+	<form th:action="@{/login}" th:object="${userForm}" method="post">
+		<div>
+			<label for="email">Email:</label>
+            <input type="email" id="email" th:field="*{email}" placeholder="請輸入Email" />
+			<div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></div>
+		</div>
+
+		<div>
+			<label for="passwd">密碼:</label>
+            <input type="password" id="passwd" th:field="*{passwd}" placeholder="請輸入密碼" />
+			<div th:if="${#fields.hasErrors('passwd')}" th:errors="*{passwd}" class="error-message"></div>
+		</div>
+
+		<button type="submit">登入</button>
+	</form>
+
+	<p><a th:href="@{/register}">還沒有帳號？註冊</a></p>
+	<p><a th:href="@{/forgot-password}">忘記密碼？</a></p>
+	
+	<p th:if="${error}" th:text="${error}" class="error-message"></p>
+	<p th:if="${error1}" th:text="${error1}" class="error-message"></p>
+	<p th:if="${message}" th:text="${message}" class="success-message"></p>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <div id="g_id_onload"
+             data-client_id="66087248968-3kjfaqub7t6irtu7nuuvojd7oqmu69c8.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+    function handleCredentialResponse(response) {
+        const id_token = response.credential;
+        fetch("/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: id_token })
+        }).then(res => {
+            if (res.redirected) {
+                window.location.href = res.url;
+            } else {
+                // 使用一個模態框或頁面內訊息，而不是 alert
+                const errorMessage = "Google 登入失敗，請稍後再試！";
+                const errorElement = document.querySelector(".error-message");
+                if (errorElement) {
+                    errorElement.textContent = errorMessage;
+                } else {
+                    const newErrorElement = document.createElement("p");
+                    newErrorElement.className = "error-message";
+                    newErrorElement.textContent = errorMessage;
+                    document.querySelector("form").after(newErrorElement);
+                }
+            }
+        }).catch(err => {
+            console.error("Fetch 錯誤:", err);
+            const errorMessage = "Google 登入時發生錯誤，請稍後再試！";
+            const errorElement = document.querySelector(".error-message");
+            if (errorElement) {
+                errorElement.textContent = errorMessage;
+            } else {
+                const newErrorElement = document.createElement("p");
+                newErrorElement.className = "error-message";
+                newErrorElement.textContent = errorMessage;
+                document.querySelector("form").after(newErrorElement);
+            }
+        });
+    }
+
+    // 檢查 URL 參數以顯示訊息
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('registered')) {
+            const messageElement = document.querySelector(".success-message");
+            if (messageElement) {
+                messageElement.textContent = "註冊成功，請登入！";
+            }
+        }
+        if (urlParams.has('passwordReset')) {
+            const messageElement = document.querySelector(".success-message");
+            if (messageElement) {
+                messageElement.textContent = "密碼已成功重設，請使用新密碼登入。";
+            }
+        }
+        if (urlParams.has('logout')) {
+            const messageElement = document.querySelector(".success-message");
+            if (messageElement) {
+                messageElement.textContent = "您已登出。";
+            }
+        }
+        if (urlParams.has('deleted')) {
+            const messageElement = document.querySelector(".success-message");
+            if (messageElement) {
+                messageElement.textContent = "帳號已成功刪除。";
+            }
+        }
+        if (urlParams.has('error') && urlParams.get('error').includes('無效或已過期的重設密碼連結')) {
+             const errorElement = document.querySelector(".error-message");
+             if (errorElement) {
+                 errorElement.textContent = "無效或已過期的重設密碼連結。請重新申請。";
+             }
+        }
+    };
+    </script>
+</body>
+</html>
