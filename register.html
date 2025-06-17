@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>會員註冊與驗證</title>
+<style>
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --border-error: #ea4444;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --input-glow: #61f6d6;
+      --success-green: #10b981;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+    .navbar {
+      background: var(--bg-secondary);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .verify-panel {
+      width: 380px;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      text-align: center;
+      position: relative;
+      top: 0; left: 0;
+      opacity: 1;
+      transform: rotateY(0deg) scale(1) translateZ(0);
+      transition: transform .4s cubic-bezier(.68,-0.55,.265,1.55), 
+                  box-shadow .4s cubic-bezier(.68,-0.55,.265,1.55),
+                  filter .4s ease;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+    .verify-panel.animating-out {
+      opacity: 1;
+      transform: rotateY(-180deg) scale(0.75) translateZ(-80px) translateX(-25px);
+      box-shadow: 0 12px 48px rgba(0,0,0,.6);
+      filter: brightness(1.2) contrast(1.1) saturate(1.2);
+      pointer-events: none;
+    }
+    .verify-panel.animating-in {
+      opacity: 1;
+      transform: rotateY(180deg) scale(0.75) translateZ(-80px) translateX(25px);
+      box-shadow: 0 12px 48px rgba(0,0,0,.6);
+      filter: brightness(1.2) contrast(1.1) saturate(1.2);
+      pointer-events: none;
+    }
+    .verify-panel.animated-in {
+      opacity: 1;
+      transform: rotateY(0deg) scale(1) translateZ(0);
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      filter: brightness(1) contrast(1) saturate(1);
+      pointer-events: auto;
+      transition: transform .5s cubic-bezier(.175,.885,.32,1.6),
+                  box-shadow .5s cubic-bezier(.175,.885,.32,1.6),
+                  filter .5s ease;
+    }
+    
+    /* 修改：減小回正時的衝擊幅度，移除光效 */
+    .verify-panel.impact-bounce {
+      animation: impactBounce 0.5s cubic-bezier(.175,.885,.32,1.4);
+    }
+    @keyframes impactBounce {
+      0% { 
+        transform: rotateY(0deg) scale(1) translateZ(0);
+      }
+      15% { 
+        transform: rotateY(-1.5deg) scale(1.04) translateZ(5px);
+        box-shadow: 0 6px 24px rgba(0,0,0,.3);
+        filter: brightness(1.05) contrast(1.02);
+      }
+      35% { 
+        transform: rotateY(1deg) scale(0.98) translateZ(-3px);
+        box-shadow: 0 3px 14px rgba(0,0,0,.2);
+        filter: brightness(0.98) contrast(1);
+      }
+      55% { 
+        transform: rotateY(-0.5deg) scale(1.01) translateZ(2px);
+        box-shadow: 0 4px 18px rgba(0,0,0,.25);
+        filter: brightness(1.02) contrast(1.01);
+      }
+      75% { 
+        transform: rotateY(0.3deg) scale(0.995) translateZ(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,.2);
+        filter: brightness(1.01) contrast(1);
+      }
+      100% { 
+        transform: rotateY(0deg) scale(1) translateZ(0);
+        box-shadow: 0 4px 16px rgba(0,0,0,.2);
+        filter: brightness(1) contrast(1);
+      }
+    }
+    .verify-panel.shake {
+      animation: shakeX 0.38s cubic-bezier(.37,2.08,.38,.77);
+    }
+    @keyframes shakeX {
+      10% { transform: translateX(-13px); }
+      26% { transform: translateX(10px);}
+      38% { transform: translateX(-7px);}
+      52% { transform: translateX(6px);}
+      70% { transform: translateX(-3px);}
+      100% { transform: translateX(0);}
+    }
+    
+    /* 新增：更有力的輸入打擊效果 */
+    .verify-panel.input-bounce {
+      animation: inputPunch 0.10s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+@keyframes inputPunch {
+  0% { transform: scale(1) translateY(0) rotate(0deg); }
+  40% { transform: scale(1.012) translateY(-1.5px) rotate(0.3deg); }
+  70% { transform: scale(0.997) translateY(0.5px) rotate(-0.15deg); }
+  100% { transform: scale(1) translateY(0) rotate(0deg); }
+}
+    
+    /* 新增：輸入框的同步反饋效果 */
+    .verify-panel input.punch-feedback {
+      animation: inputFieldPunch 0.08s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    @keyframes inputFieldPunch {
+      0% { transform: scale(1); }
+      60% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .verify-panel h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 1.8rem;
+    }
+    .verify-panel .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+      position: relative;
+    }
+    .verify-panel label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: var(--text-light);
+    }
+    .verify-panel input[type="email"], .verify-panel input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg-bot-input);
+      border: 1.5px solid var(--border-input);
+      border-radius: 6px;
+      color: var(--text-bot);
+      font-size: 1.2rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      outline: none;
+    }
+    .verify-panel input[type="email"]::placeholder,
+    .verify-panel input[type="text"]::placeholder {
+      color: var(--placeholder);
+    }
+    .verify-panel input:focus {
+      border-color: var(--input-glow);
+      box-shadow: 0 0 0 1px var(--input-glow);
+    }
+    .verify-panel input.error {
+      border-color: var(--border-error) !important;
+      box-shadow: 0 0 0 1px var(--border-error) !important;
+    }
+    .verify-panel input.success {
+      border-color: var(--success-green) !important;
+      box-shadow: 0 0 0 1px var(--success-green) !important;
+    }
+    /* 移除原本的hit動畫，改用更細膩的輸入反饋 */
+    .verify-panel input.typing {
+      background: #323237;
+    }
+    
+    /* 新增進度條的打擊反饋 */
+    .progress-bar.punch {
+      animation: progressPunch 0.08s ease-out;
+    }
+    @keyframes progressPunch {
+      0% { transform: scaleY(1); }
+      60% { transform: scaleY(1.8); }
+      100% { transform: scaleY(1); }
+    }
+    .progress-container {
+      width: 100%;
+      height: 3px;
+      background: var(--border-input);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--input-glow);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.15s ease-out;
+    }
+    
+    .verify-panel .action-btn,
+    .verify-panel .resend-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-light);
+      background: var(--bg-user);
+      cursor: pointer;
+      transition: background .2s, transform 0.1s ease;
+      margin-bottom: 0;
+    }
+    .verify-panel .action-btn:hover,
+    .verify-panel .resend-btn:hover {
+      background: #525257;
+    }
+    .verify-panel .action-btn:active,
+    .verify-panel .resend-btn:active {
+      transform: scale(0.98);
+    }
+    .verify-panel .login-link {
+      margin-top: 24px;
+    }
+    .verify-panel .login-link a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    .verify-panel .login-link a:hover {
+      text-decoration: underline;
+    }
+    
+    /* 固定提示區域高度，防止面板尺寸變化 */
+    .tip-container {
+      position: relative;
+      height: 20px;
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+    
+    .error-tip, .success-tip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      font-size: 1rem;
+      text-align: left;
+      transition: opacity 0.2s ease;
+      margin: 0;
+    }
+    
+    .error-tip {
+      color: var(--border-error);
+    }
+    
+    .success-tip {
+      color: var(--success-green);
+    }
+    
+    @media(max-width:600px) {
+      .verify-panel { width: 90%; padding: 24px; }
+    }
+    .footer {
+      background: var(--bg-secondary);
+      padding: 18px 0;
+    }
+    .footer-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1.14em;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <div>Logo</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="verify-panel" id="verifyPanel">
+      <h2 id="panelTitle">會員註冊</h2>
+      <!-- Step 1: Email input -->
+      <form th:action="@{/register/request-code}" th:object="${userForm}" method="post" id="emailForm">
+        <div class="input-group" id="step1">
+          <label for="email">電子郵件</label>
+          <input type="email" id="email" th:field="*{email}" placeholder="you@example.com" required autocomplete="email" />
+          <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></p>
+        </div>
+        <button class="action-btn" id="sendBtn" type="submit">發送驗證碼</button>
+        <p th:if="${error}" th:text="${error}" class="error-message"></p>
+        <p th:if="${message}" th:text="${message}" class="success-message"></p>
+      </form>
+
+      <!-- Step 2: Code input -->
+      <div class="input-group" id="step2" style="display:none;">
+        <label for="codeInput">驗證碼</label>
+        <input type="text" id="codeInput" maxlength="6" placeholder="請輸入6位數驗證碼" pattern="\d{6}" />
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="tip-container">
+          <div class="error-tip" id="errorTip"></div>
+          <div class="success-tip" id="successTip" style="opacity:0;"></div>
+        </div>
+      </div>
+      <button class="resend-btn" id="resendBtn" style="display:none;margin-top:8px;">再發送一次</button>
+  </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">客服信箱</div>
+  </footer>
+
+  <script>
+    // 測試驗證碼
+    const VERIFY_CODE = "123456";
+    const panel = document.getElementById('verifyPanel');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const sendBtn = document.getElementById('sendBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    const codeInput = document.getElementById('codeInput');
+    const errorTip = document.getElementById('errorTip');
+    const successTip = document.getElementById('successTip');
+    const panelTitle = document.getElementById('panelTitle');
+    const progressBar = document.getElementById('progressBar');
+
+    let inputTimeout;
+
+    sendBtn.addEventListener('click', function() {
+      // 添加按鈕按下的強烈反饋
+      sendBtn.style.transform = 'scale(0.95)';
+      sendBtn.style.background = '#525257';
+      
+      setTimeout(() => {
+        sendBtn.style.transform = '';
+        sendBtn.style.background = '';
+      }, 120);
+      
+      // 第一階段：翻轉到左側 -180 度，完全翻過去
+      panel.classList.add('animating-out');
+      
+      setTimeout(() => {
+        // 切換內容
+        step1.style.display = 'none';
+        sendBtn.style.display = 'none';
+        step2.style.display = '';
+        resendBtn.style.display = '';
+        panelTitle.textContent = '輸入驗證碼';
+        codeInput.value = '';
+        codeInput.classList.remove('error', 'success');
+        errorTip.textContent = '';
+        successTip.style.opacity = '0';
+        progressBar.style.width = '0%';
+        
+        // 第二階段：從右側 180 度翻轉回來
+        panel.classList.remove('animating-out');
+        panel.classList.add('animating-in');
+        
+        setTimeout(() => {
+          panel.classList.remove('animating-in');
+          // 使用爆炸性衝擊效果代替普通的 animated-in
+          panel.classList.add('impact-bounce');
+          codeInput.focus();
+          
+          setTimeout(() => {
+            panel.classList.remove('impact-bounce');
+          }, 500);
+        }, 30);
+      }, 400);
+    });
+
+    resendBtn.addEventListener('click', function() {
+      codeInput.value = '';
+      codeInput.classList.remove('error', 'success');
+      errorTip.textContent = '';
+      successTip.style.opacity = '0';
+      progressBar.style.width = '0%';
+      codeInput.focus();
+      panelTitle.textContent = '驗證碼已重新發送';
+      setTimeout(() => {
+        panelTitle.textContent = '輸入驗證碼';
+      }, 1200);
+    });
+
+    // 優化的輸入處理
+    codeInput && codeInput.addEventListener('input', function(e) {
+      const value = codeInput.value;
+      const length = value.length;
+      
+      // 更新進度條（加上打擊感）
+      progressBar.style.width = (length / 6 * 100) + '%';
+      if (e.inputType !== 'deleteContentBackward' && e.inputType !== 'deleteContentForward') {
+        progressBar.classList.remove('punch');
+        void progressBar.offsetWidth;
+        progressBar.classList.add('punch');
+        setTimeout(() => {
+          progressBar.classList.remove('punch');
+        }, 80);
+      }
+      
+      // 清除之前的狀態
+      codeInput.classList.remove('error', 'success');
+      errorTip.textContent = '';
+      successTip.style.opacity = '0';
+      
+      // 添加輸入時的細微反饋
+      codeInput.classList.add('typing');
+      clearTimeout(inputTimeout);
+      inputTimeout = setTimeout(() => {
+        codeInput.classList.remove('typing');
+      }, 150);
+      
+      // 面板強力打擊效果（只在輸入時觸發，不包括刪除）
+      if (e.inputType !== 'deleteContentBackward' && e.inputType !== 'deleteContentForward') {
+        // 面板打擊動畫
+        panel.classList.remove('input-bounce');
+        void panel.offsetWidth; // 強制重繪
+        panel.classList.add('input-bounce');
+        
+        // 輸入框同步反饋
+        codeInput.classList.remove('punch-feedback');
+        void codeInput.offsetWidth;
+        codeInput.classList.add('punch-feedback');
+        
+        setTimeout(() => {
+          panel.classList.remove('input-bounce');
+          codeInput.classList.remove('punch-feedback');
+        }, 100);
+      }
+
+      if (length === 6) {
+        // 短暫延遲讓使用者看到完整輸入
+        setTimeout(() => {
+          if (value === VERIFY_CODE) {
+            codeInput.classList.add('success');
+            successTip.textContent = '驗證成功！正在跳轉...';
+            successTip.style.opacity = '1';
+            progressBar.style.background = 'var(--success-green)';
+            
+            // 模擬跳轉
+            setTimeout(() => {
+              console.log('驗證成功，這裡可以跳轉頁面');
+              window.location.href = 'register.html';
+            }, 1500);
+          } else {
+            codeInput.classList.add('error');
+            errorTip.textContent = '驗證碼錯誤，請重新輸入';
+            progressBar.style.background = 'var(--border-error)';
+            
+            // 搖晃動畫
+            panel.classList.remove('shake');
+            void panel.offsetWidth;
+            panel.classList.add('shake');
+            
+            setTimeout(() => {
+              codeInput.value = '';
+              progressBar.style.width = '0%';
+              progressBar.style.background = 'var(--input-glow)';
+              codeInput.focus();
+              panel.classList.remove('shake');
+            }, 400);
+          }
+        }, 100);
+      }
+    });
+
+    // 阻止非數字輸入
+    codeInput && codeInput.addEventListener('keypress', function(e) {
+      if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    
+  </script>
+</body>
+</html>
