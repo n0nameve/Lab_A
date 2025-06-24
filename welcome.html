@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<title>會員首頁</title>
+<style>
+    /*
+     * CSS 變數的定義：
+     * 這裡定義了多個主題的 CSS 變數。
+     * 'body' 上的 CSS class (例如 .dark-theme) 會覆蓋 :root 中的變數，實現主題切換。
+     *
+     * 請確保您的 CSS 變數名稱與您的主題定義相符。
+     */
+    :root {
+        /* 預設的淺色主題 (例如：light-theme 或 default theme) */
+        --bg-primary: #f4f7f6; /* 主背景色 */
+        --bg-secondary: #e0e0e0; /* 次要背景色 (例如：輸入框、卡片背景) */
+        --text-light: #333; /* 淺色主題下的一般文字顏色 */
+        --text-dark: #000; /* 淺色主題下的深色文字 (例如：標題) */
+        --bg-bot-input: #e0e0e0; /* 機器人輸入框背景 */
+        --text-bot: #333; /* 機器人文字顏色 */
+        --bg-user: #c0c0c0; /* 用戶區塊背景 */
+        --text-user: #000; /* 用戶文字顏色 */
+        --border-input: #ccc; /* 輸入框邊框 */
+        --placeholder: #666; /* 佔位符文字顏色 */
+        --btn-disabled: #bbb; /* 禁用按鈕顏色 */
+        --text-link: #007bff; /* 預設連結顏色 */
+        --btn-primary-bg: #007bff; /* 主要按鈕背景色 (例如：購買按鈕) */
+        --btn-primary-hover-bg: #0056b3; /* 主要按鈕 hover 色 */
+        --btn-danger-bg: #dc3545; /* 刪除按鈕背景色 */
+        --btn-danger-hover-bg: #c82333; /* 刪除按鈕 hover 色 */
+        --btn-text-color: white; /* 按鈕文字顏色 */
+        --card-bg: #ffffff; /* 卡片背景色 */
+        --card-border: #ddd; /* 卡片邊框 */
+        --message-success: #28a745; /* 成功訊息顏色 */
+        --message-error: #dc3545; /* 錯誤訊息顏色 */
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        /* 使用 CSS 變數來控制背景色和文字顏色，這樣主題切換時會改變 */
+        background-color: var(--bg-primary);
+        color: var(--text-light);
+        display: flex;
+        justify-content: flex-start; /* 讓內容靠上對齊 */
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+        padding-top: 40px; /* 增加頂部間距 */
+        transition: background-color 0.3s ease, color 0.3s ease; /* 添加平滑過渡效果 */
+    }
+
+    h2 {
+        color: var(--text-dark); /* 標題使用深色文字，如果未定義則用預設 */
+        margin-bottom: 25px;
+        font-size: 2.2em;
+        text-align: center;
+    }
+
+    p {
+        margin-bottom: 15px;
+        font-size: 1.1em;
+        line-height: 1.6;
+    }
+
+    a {
+        color: var(--text-link); /* 連結顏色使用變數 */
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    a:hover { text-decoration: underline; color: var(--btn-primary-hover-bg); }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px; /* 元素之間的間距 */
+        background-color: var(--bg-secondary);
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        width: clamp(280px, 80%, 600px); /* 限制寬度 */
+        justify-content: space-between;
+    }
+
+    .control-group label {
+        font-size: 1.1em;
+        color: var(--text-dark);
+        flex-shrink: 0;
+    }
+
+    .control-group select,
+    .control-group input[type="text"] { /* 為可能的新增輸入框預留樣式 */
+        padding: 10px 15px;
+        border: 1px solid var(--border-input);
+        border-radius: 5px;
+        background-color: var(--bg-primary); /* 輸入背景使用主背景色 */
+        color: var(--text-light);
+        font-size: 1em;
+        flex-grow: 1; /* 讓選單可以彈性擴展 */
+    }
+    .control-group select:focus,
+    .control-group input[type="text"]:focus {
+        outline: none;
+        border-color: var(--text-link);
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+
+
+    button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        transition: background-color 0.3s ease, color 0.3s ease; /* 添加過渡效果 */
+        color: var(--btn-text-color); /* 使用變數 */
+        margin-top: 10px; /* 增加按鈕之間的間距 */
+    }
+    button.btn-primary {
+        background-color: var(--btn-primary-bg);
+    }
+    button.btn-primary:hover {
+        background-color: var(--btn-primary-hover-bg);
+    }
+    button.btn-danger {
+        background-color: var(--btn-danger-bg);
+    }
+    button.btn-danger:hover {
+        background-color: var(--btn-danger-hover-bg);
+    }
+
+    .message {
+        padding: 10px 20px;
+        margin-top: 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        width: clamp(280px, 80%, 600px);
+    }
+    .message.success {
+        background-color: var(--message-success);
+        color: white;
+    }
+    .message.error {
+        background-color: var(--message-error);
+        color: white;
+    }
+
+    /* --- 主題商店樣式 --- */
+    .theme-shop-container {
+        margin-top: 40px;
+        width: clamp(300px, 90%, 800px); /* 調整商店容器寬度 */
+        background-color: var(--bg-secondary);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        color: var(--text-dark);
+        text-align: center;
+    }
+
+    .theme-shop-container h3 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+        color: var(--text-dark);
+    }
+
+    .theme-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 自動適應列數 */
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .theme-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .theme-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    .theme-card h4 {
+        margin-top: 0;
+        font-size: 1.3em;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+    }
+
+    .theme-card p {
+        font-size: 1em;
+        color: var(--text-light);
+        margin-bottom: 15px;
+    }
+
+    .theme-card .price {
+        font-weight: bold;
+        color: var(--text-dark);
+        font-size: 1.1em;
+        margin-bottom: 15px;
+    }
+
+    .theme-card button {
+        width: 100%;
+        margin-top: auto; /* 讓按鈕總是在底部 */
+    }
+
+    /* --- 各佈景主題的 CSS Class 定義 --- */
+    body.dark-theme {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --text-light: #e0e0e0;
+        --text-dark: #f0f0f0;
+        --bg-bot-input: #2a2a2a;
+        --text-bot: #c0c0c0;
+        --bg-user: #3a3a3a;
+        --text-user: #f0f0f0;
+        --border-input: #4a4a4a;
+        --placeholder: #7a7a7a;
+        --btn-disabled: #5a5a5a;
+        --text-link: #8ab4f8; /* 深色主題的連結顏色 */
+        --btn-primary-bg: #8ab4f8;
+        --btn-primary-hover-bg: #6a9ee8;
+        --btn-danger-bg: #cf6679;
+        --btn-danger-hover-bg: #a64f5e;
+        --btn-text-color: #121212; /* 深色主題按鈕文字用深色 */
+        --card-bg: #2a2a2a;
+        --card-border: #3a3a3a;
+        --message-success: #66bb6a;
+        --message-error: #ef5350;
+    }
+
+    body.blue-theme {
+        --bg-primary: #e3f2fd;
+        --bg-secondary: #bbdefb;
+        --text-light: #212121;
+        --text-dark: #1a237e;
+        --bg-bot-input: #90caf9;
+        --text-bot: #212121;
+        --bg-user: #64b5f6;
+        --text-user: #ffffff;
+        --border-input: #42a5f5;
+        --placeholder: #42a5f5;
+        --btn-disabled: #90caf9;
+        --text-link: #1976d2;
+        --btn-primary-bg: #1976d2;
+        --btn-primary-hover-bg: #1565c0;
+        --btn-danger-bg: #ef5350;
+        --btn-danger-hover-bg: #c62828;
+        --btn-text-color: white;
+        --card-bg: #e3f2fd; /* 藍色主題卡片背景用淺藍 */
+        --card-border: #90caf9;
+        --message-success: #4CAF50;
+        --message-error: #F44336;
+    }
+
+    body.green-theme { /* <-- 這個移到外面來了 */
+        --bg-primary: #e8f5e9; /* 淺綠色背景 */
+        --bg-secondary: #c8e6c9; /* 較深的淺綠色 */
+        --text-light: #2e7d32; /* 較深的綠色文字 */
+        --text-dark: #1b5e20; /* 更深的綠色文字 */
+        --bg-bot-input: #a5d6a7;
+        --text-bot: #1b5e20;
+        --bg-user: #81c784;
+        --text-user: #ffffff;
+        --border-input: #4caf50;
+        --placeholder: #66bb6a;
+        --btn-disabled: #a5d6a7;
+        --text-link: #388e3c;
+        --btn-primary-bg: #4caf50; /* 綠色主要按鈕 */
+        --btn-primary-hover-bg: #388e3c;
+        --btn-danger-bg: #d32f2f; /* 刪除按鈕保持紅色 */
+        --btn-danger-hover-bg: #b71c1c;
+        --btn-text-color: white;
+        --card-bg: #ffffff;
+        --card-border: #81c784;
+        --message-success: #43a047;
+        --message-error: #e53935;
+    }
+
+    body.purple-theme { /* <-- 這個移到外面來了 */
+        --bg-primary: #f3e5f5; /* 淺紫色背景 */
+        --bg-secondary: #e1bee7; /* 較深的淺紫色 */
+        --text-light: #4a148c; /* 較深的紫色文字 */
+        --text-dark: #311b92; /* 更深的紫色文字 */
+        --bg-bot-input: #ce93d8;
+        --text-bot: #4a148c;
+        --bg-user: #ba68c8;
+        --text-user: #ffffff;
+        --border-input: #9c27b0;
+        --placeholder: #7b1fa2;
+        --btn-disabled: #ce93d8;
+        --text-link: #673ab7;
+        --btn-primary-bg: #9c27b0;
+        --btn-primary-hover-bg: #7b1fa2;
+        --btn-danger-bg: #d32f2f;
+        --btn-danger-hover-bg: #b71c1c;
+        --btn-text-color: white;
+        --card-bg: #ffffff;
+        --card-border: #ba68c8;
+        --message-success: #673ab7;
+        --message-error: #d84315;
+    }
+
+    body.gold-theme { /* <-- 這個移到外面來了 */
+        --bg-primary: #fffde7; /* 淺金色背景 */
+        --bg-secondary: #fff59d; /* 較深的淺金色 */
+        --text-light: #424242; /* 深灰色文字 */
+        --text-dark: #212121; /* 更深的灰色文字 */
+        --bg-bot-input: #ffe082;
+        --text-bot: #424242;
+        --bg-user: #ffd54f;
+        --text-user: #212121;
+        --border-input: #ffca28;
+        --placeholder: #ffc107;
+        --btn-disabled: #ffe082;
+        --text-link: #ff8f00;
+        --btn-primary-bg: #ffc107;
+        --btn-primary-hover-bg: #ffa000;
+        --btn-danger-bg: #d32f2f;
+        --btn-danger-hover-bg: #b71c1c;
+        --btn-text-color: black; /* 金色主題按鈕文字用黑色 */
+        --card-bg: #ffffff;
+        --card-border: #ffd54f;
+        --message-success: #ffeb3b;
+        --message-error: #f44336;
+    }
+</style>
+</head>
+<body>
+	<h2>
+		歡迎, <span th:text="${name}"></span>！
+	</h2>
+
+    <p>
+        您的貨幣餘額：<span id="userCoinDisplay" th:text="${userCoin}"></span>
+    </p>
+
+    <div class="control-group">
+        <label for="themeSelector">選擇佈景主題：</label>
+        <select id="themeSelector">
+            <option th:each="themeName : ${availableThemes}"
+                    th:value="${themeName}"
+                    th:text="${#strings.capitalize(themeName)}"
+                    th:selected="${themeName == currentTheme}">
+            </option>
+        </select>
+    </div>
+
+    <div id="messageBox" class="message" style="display: none;"></div>
+
+    <p>
+		<a th:href="@{/change-password}">修改密碼</a>
+	</p>
+
+	<form th:action="@{/logout}" method="get" style="margin-top: 0;">
+		<button type="submit" class="btn-primary">登出</button>
+	</form>
+
+	<form th:action="@{/delete-account}" method="post" onsubmit="return confirm('確定要刪除帳號嗎？此操作無法復原！');" style="margin-top: 10px;">
+		<button type="submit" class="btn-danger">刪除帳號</button>
+	</form>
+
+    ---
+
+    <div class="theme-shop-container">
+        <h3>主題商店</h3>
+        <div class="theme-list">
+            <div class="theme-card" th:each="theme : ${allThemes}">
+                <h4 th:text="${theme.displayName}">主題名稱</h4>
+                <p th:text="${theme.themeName}"></p>
+                <div class="price" th:if="${theme.price > 0}">價格: <span th:text="${theme.price}"></span> 金幣</div>
+                <div class="price" th:if="${theme.price == 0}">免費</div>
+
+                <button class="btn-primary buy-theme-btn"
+                        th:data-theme-name="${theme.themeName}"
+                        th:data-theme-price="${theme.price}"
+                        th:data-theme-id="${theme.id}"
+                        th:disabled="${theme.themeName == currentTheme}">
+                    <span th:if="${theme.price == 0 && theme.themeName == currentTheme}">已啟用 (免費)</span>
+                    <span th:unless="${theme.price == 0 || theme.themeName == currentTheme}">購買</span>
+                    <span th:if="${theme.price > 0 && theme.themeName != currentTheme}">購買</span>
+                </button>
+                </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeSelector = document.getElementById('themeSelector');
+            const body = document.body;
+            const userCoinDisplay = document.getElementById('userCoinDisplay'); // 用於顯示金幣
+            const messageBox = document.getElementById('messageBox'); // 訊息顯示框
+
+            // 1. 初始化時應用主題
+            // 優先從後端 Model 獲取當前主題 (themeSelector.value 是由 th:selected 決定的)
+            // 如果後端沒有傳送，則嘗試從 localStorage 獲取，最後預設為 'default'
+            // 注意：這裡直接使用 themeSelector.value 因為後端已經預選了
+            const initialTheme = themeSelector.value || 'default';
+            applyTheme(initialTheme);
+            updateBuyButtonsState(); // 初始化購買按鈕狀態
+
+            // 2. 監聽下拉選單的變化事件 (儲存當前使用主題)
+            themeSelector.addEventListener('change', function() {
+                const selectedTheme = this.value;
+                applyTheme(selectedTheme); // 應用新的主題
+
+                // 更新 localStorage，這樣下次頁面刷新時會記住選擇的主題
+                localStorage.setItem('selectedTheme', selectedTheme);
+
+                // 更新購買按鈕的狀態，因為當前主題可能已改變
+                updateBuyButtonsState();
+
+                // 發送 AJAX 請求到後端，將用戶選擇的主題儲存到資料庫
+                fetch('/saveTheme', {
+                    method: 'POST', // 使用 POST 方法
+                    headers: {
+                        'Content-Type': 'application/json', // 請求體是 JSON 格式
+                        'Accept': 'application/json' // 期望響應也是 JSON 格式
+                    },
+                    body: JSON.stringify({ theme: selectedTheme }), // 將選中的主題名稱轉換為 JSON 字串作為請求體
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('主題儲存成功:', data.message);
+                    showMessage(data.message, data.status); // 顯示訊息給用戶
+                })
+                .catch((error) => {
+                    console.error('儲存主題失敗:', error);
+                    showMessage('更新主題時發生錯誤，請檢查網路或稍後再試。', 'error');
+                });
+            });
+
+            // 3. 監聽購買主題按鈕的點擊事件
+            document.querySelectorAll('.buy-theme-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const themeName = this.dataset.themeName;
+                    const themePrice = parseInt(this.dataset.themePrice); // 獲取價格
+
+                    if (this.disabled) {
+                        console.log(`按鈕已禁用或已擁有主題: ${themeName}`);
+                        return; // 如果按鈕被禁用，不執行任何操作
+                    }
+
+                    // 提示用戶確認購買
+                    if (!confirm(`確定要花 ${themePrice} 金幣購買 "${themeName}" 主題嗎？`)) {
+                        return;
+                    }
+
+                    fetch('/buyTheme', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ theme: themeName }),
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            // 即使狀態碼是 4xx/5xx，也要嘗試解析 JSON 獲取錯誤訊息
+                            return response.json().then(err => { throw new Error(err.message || '購買失敗'); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('購買成功:', data.message);
+                            showMessage(data.message, 'success');
+                            userCoinDisplay.textContent = data.newCoin; // 更新顯示的金幣
+                            // 購買成功後，將新購買的主題添加到下拉選單中
+                            addThemeToSelector(themeName);
+                            // 重新評估所有購買按鈕的狀態
+                            updateBuyButtonsState();
+                        } else {
+                            console.error('購買失敗:', data.message);
+                            showMessage(data.message, 'error');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('購買主題失敗:', error);
+                        showMessage(error.message || '購買主題時發生錯誤，請檢查網路或稍後再試。', 'error');
+                    });
+                });
+            });
+
+
+            // 應用佈景主題的函數
+            function applyTheme(themeName) {
+                // 移除所有可能存在的舊主題 class
+                Array.from(body.classList).forEach(cls => {
+                    if (cls.endsWith('-theme')) {
+                        body.classList.remove(cls);
+                    }
+                });
+
+                // 如果主題名稱不是 'default'，就添加對應的 class 到 body 元素
+                if (themeName && themeName !== 'default') {
+                    body.classList.add(themeName + '-theme');
+                }
+            }
+
+            // 動態新增主題到下拉選單 (如果還沒有的話)
+            function addThemeToSelector(themeName) {
+                // 檢查下拉選單中是否已經有這個主題
+                let optionExists = Array.from(themeSelector.options).some(option => option.value === themeName);
+                if (!optionExists) {
+                    const newOption = document.createElement('option');
+                    newOption.value = themeName;
+                    newOption.textContent = capitalizeFirstLetter(themeName);
+                    themeSelector.appendChild(newOption);
+                }
+                // 購買後自動切換到新購買的主題
+                themeSelector.value = themeName;
+                applyTheme(themeName);
+                localStorage.setItem('selectedTheme', themeName); // 也更新 localStorage
+            }
+
+            // 更新所有購買按鈕的狀態 (禁用/啟用)
+            function updateBuyButtonsState() {
+                const currentTheme = themeSelector.value; // 當前啟用的主題
+                const userCoin = parseInt(userCoinDisplay.textContent); // 當前用戶的金幣
+
+                document.querySelectorAll('.buy-theme-btn').forEach(button => {
+                    const themeName = button.dataset.themeName;
+                    const themePrice = parseInt(button.dataset.themePrice);
+
+                    // 檢查用戶是否已擁有此主題 (透過下拉選單的選項判斷)
+                    const hasPurchased = Array.from(themeSelector.options).some(option => option.value === themeName);
+
+                    // 禁用邏輯
+                    if (hasPurchased) {
+                        button.disabled = true;
+                        if (themeName === currentTheme) {
+                            button.textContent = '已啟用';
+                        } else {
+                            button.textContent = '已擁有';
+                        }
+                    } else if (userCoin < themePrice) {
+                        button.disabled = true;
+                        button.textContent = `金幣不足 (${themePrice})`;
+                    } else {
+                        button.disabled = false;
+                        button.textContent = `購買 (${themePrice} 金幣)`;
+                    }
+
+                    // 額外處理 "免費" 主題的顯示
+                    if (themePrice === 0) {
+                        if (hasPurchased) { // 免費主題且已擁有
+                            button.disabled = true;
+                            button.textContent = '已擁有 (免費)';
+                            if (themeName === currentTheme) {
+                                button.textContent = '已啟用 (免費)';
+                            }
+                        } else { // 免費主題但未擁有 (理論上只有 default 會這樣，且會在註冊時自動擁有)
+                             button.disabled = false; // 應該不會發生，但保險起見
+                             button.textContent = '獲取 (免費)';
+                        }
+                    }
+                });
+            }
+
+            // 顯示訊息函數
+            function showMessage(msg, type) {
+                messageBox.textContent = msg;
+                messageBox.className = 'message ' + type; // 設置 class
+                messageBox.style.display = 'block';
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                    messageBox.textContent = '';
+                }, 5000); // 5 秒後自動隱藏
+            }
+
+            // 將字串首字母大寫
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+        });
+    </script>
+</body>
+</html>
