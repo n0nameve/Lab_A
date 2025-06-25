@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>信箱驗證</title>
+    <style>
+        :root {
+            --bg-primary: #0d0d0f;
+            --bg-secondary: #1a1a1c;
+            --text-light: #c3c3c3;
+            --bg-bot-input: #2a2a2e;
+            --text-bot: #e5e7eb;
+            --bg-user: #3e3e42;
+            --text-user: #f3f4f6;
+            --border-input: #2c2c2e;
+            --border-error: #ea4444;
+            --placeholder: #6b7280;
+            --btn-disabled: #4b5563;
+            --input-glow: #61f6d6;
+            --success-green: #10b981;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            color: var(--text-light);
+            font-family: "Noto Sans TC", Arial, sans-serif;
+
+        }
+        .navbar {
+            background: var(--bg-secondary);
+            padding: 16px 24px;
+            font-size: 1.3em;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            perspective: 1200px;
+        }
+        .verify-panel {
+            width: 380px;
+            background: var(--bg-secondary);
+            color: var(--text-light);
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+            text-align: center;
+            position: relative;
+            top: 0; left: 0;
+            opacity: 1;
+            transform: rotateY(0deg) scale(1) translateZ(0);
+            transition: transform .4s cubic-bezier(.68,-0.55,.265,1.55),
+                        box-shadow .4s cubic-bezier(.68,-0.55,.265,1.55),
+                        filter .4s ease;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+        .verify-panel.animating-out {
+            opacity: 1;
+            transform: rotateY(-180deg) scale(0.75) translateZ(-80px) translateX(-25px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.6);
+            filter: brightness(1.2) contrast(1.1) saturate(1.2);
+            pointer-events: none;
+        }
+        .verify-panel.animating-in {
+            opacity: 1;
+            transform: rotateY(180deg) scale(0.75) translateZ(-80px) translateX(25px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.6);
+            filter: brightness(1.2) contrast(1.1) saturate(1.2);
+            pointer-events: none;
+        }
+        .verify-panel.animated-in {
+            opacity: 1;
+            transform: rotateY(0deg) scale(1) translateZ(0);
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+            filter: brightness(1) contrast(1) saturate(1);
+            pointer-events: auto;
+            transition: transform .5s cubic-bezier(.175,.885,.32,1.6),
+                        box-shadow .5s cubic-bezier(.175,.885,.32,1.6),
+                        filter .5s ease;
+        }
+        .verify-panel.impact-bounce {
+            animation: impactBounce 0.5s cubic-bezier(.175,.885,.32,1.4);
+        }
+        @keyframes impactBounce {
+            0% {
+                transform: rotateY(0deg) scale(1) translateZ(0);
+            }
+            15% {
+                transform: rotateY(-1.5deg) scale(1.04) translateZ(5px);
+                box-shadow: 0 6px 24px rgba(0,0,0,.3);
+                filter: brightness(1.05) contrast(1.02);
+            }
+            35% {
+                transform: rotateY(1deg) scale(0.98) translateZ(-3px);
+                box-shadow: 0 3px 14px rgba(0,0,0,.2);
+                filter: brightness(0.98) contrast(1);
+            }
+            55% {
+                transform: rotateY(-0.5deg) scale(1.01) translateZ(2px);
+                box-shadow: 0 4px 18px rgba(0,0,0,.25);
+                filter: brightness(1.02) contrast(1.01);
+            }
+            75% {
+                transform: rotateY(0.3deg) scale(0.995) translateZ(-1px);
+                box-shadow: 0 4px 16px rgba(0,0,0,.2);
+                filter: brightness(1.01) contrast(1);
+            }
+            100% {
+                transform: rotateY(0deg) scale(1) translateZ(0);
+                box-shadow: 0 4px 16px rgba(0,0,0,.2);
+                filter: brightness(1) contrast(1);
+            }
+        }
+        .verify-panel.shake {
+            animation: shakeX 0.38s cubic-bezier(.37,2.08,.38,.77);
+        }
+        @keyframes shakeX {
+            10% { transform: translateX(-13px); }
+            26% { transform: translateX(10px);}
+            38% { transform: translateX(-7px);}
+            52% { transform: translateX(6px);}
+            70% { transform: translateX(-3px);}
+            100% { transform: translateX(0);}
+        }
+        .verify-panel.input-bounce {
+            animation: inputPunch 0.10s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes inputPunch {
+            0% { transform: scale(1) translateY(0) rotate(0deg); }
+            40% { transform: scale(1.012) translateY(-1.5px) rotate(0.3deg); }
+            70% { transform: scale(0.997) translateY(0.5px) rotate(-0.15deg); }
+            100% { transform: scale(1) translateY(0) rotate(0deg); }
+        }
+        .verify-panel input.punch-feedback {
+            animation: inputFieldPunch 0.08s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes inputFieldPunch {
+            0% { transform: scale(1); }
+            60% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .verify-panel h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+        }
+        .verify-panel .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+        .verify-panel label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+        .verify-panel input[type="email"] {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-bot-input);
+            border: 1.5px solid var(--border-input);
+            border-radius: 6px;
+            color: var(--text-bot);
+            font-size: 1.2rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            outline: none;
+        }
+        .verify-panel input[type="email"]::placeholder {
+            color: var(--placeholder);
+        }
+        .verify-panel input:focus {
+            border-color: var(--input-glow);
+            box-shadow: 0 0 0 1px var(--input-glow);
+        }
+        .verify-panel input.error {
+            border-color: var(--border-error) !important;
+            box-shadow: 0 0 0 1px var(--border-error) !important;
+        }
+        .verify-panel input.success {
+            border-color: var(--success-green) !important;
+            box-shadow: 0 0 0 1px var(--success-green) !important;
+        }
+        .verify-panel input.typing {
+            background: #323237;
+        }
+        .verify-panel .action-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-light);
+            background: var(--bg-user);
+            cursor: pointer;
+            transition: background .2s, transform 0.1s ease;
+            margin-bottom: 0;
+        }
+        .verify-panel .action-btn:hover {
+            background: #525257;
+        }
+        .verify-panel .action-btn:active {
+            transform: scale(0.98);
+        }
+        .verify-panel .login-link {
+            margin-top: 24px;
+        }
+        .verify-panel .login-link a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        .verify-panel .login-link a:hover {
+            text-decoration: underline;
+        }
+        .tip-container {
+            position: relative;
+            height: 20px;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+        .error-tip, .success-tip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            font-size: 1rem;
+            text-align: left;
+            transition: opacity 0.2s ease;
+            margin: 0;
+        }
+        .error-tip {
+            color: var(--border-error);
+        }
+        .success-tip {
+            color: var(--success-green);
+        }
+        @media(max-width:600px) {
+            .verify-panel { width: 90%; padding: 24px; }
+        }
+        .footer {
+            background: var(--bg-secondary);
+            padding: 18px 0;
+            width: 100%; /* 確保頁腳佔滿整個寬度 */
+        }
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.14em;
+        }
+
+        /* 原有 register.html 的 Thymeleaf 訊息樣式調整 */
+        .error-message {
+            color: var(--border-error);
+            font-size: 0.9em;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .success-message {
+            color: var(--success-green);
+            font-size: 0.9em;
+            margin-top: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-container"><div>Logo</div></div>
+    </header>
+    <main>
+        <div class="verify-panel" id="verifyPanel">
+            <h2 id="panelTitle">驗證您的信箱</h2>
+
+            <p th:if="${error}" th:text="${error}" class="error-message"></p>
+            <p th:if="${message}" th:text="${message}" class="success-message"></p>
+
+            <form th:action="@{/register/request-code}" th:object="${userForm}" method="post">
+                <div class="input-group" id="step1">
+                    <label for="email">電子郵件</label>
+                    <input type="email" id="email" name="email" th:field="*{email}" placeholder="you@example.com" required autocomplete="email">
+                    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></p>
+                    <div class="tip-container">
+                        <div class="error-tip" id="errorTip"></div>
+                        <div class="success-tip" id="successTip" style="opacity:0;"></div>
+                    </div>
+                </div>
+                <button class="action-btn" id="sendBtn" type="submit">發送驗證碼</button>
+            </form>
+
+            <p class="login-link"><a th:href="@{/login}">已經有帳號了？前往登入</a></p>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">客服信箱</div>
+    </footer>
+    <script th:inline="javascript">
+        const panel = document.getElementById('verifyPanel');
+        const emailInput = document.getElementById('email');
+        const sendBtn = document.getElementById('sendBtn');
+        const errorTip = document.getElementById('errorTip');
+        const successTip = document.getElementById('successTip');
+        const panelTitle = document.getElementById('panelTitle');
+
+        let inputTimeout;
+
+        // 頁面載入時的初始動畫
+        panel.classList.add('impact-bounce');
+        setTimeout(() => {
+            panel.classList.remove('impact-bounce');
+            emailInput.focus(); // 動畫結束後聚焦輸入框
+        }, 500);
+
+        sendBtn.addEventListener('click', function() {
+            // 添加按鈕按下的強烈反饋
+            sendBtn.style.transform = 'scale(0.95)';
+            sendBtn.style.background = '#525257';
+
+            setTimeout(() => {
+                sendBtn.style.transform = '';
+                sendBtn.style.background = '';
+            }, 120);
+
+            // 當點擊發送按鈕時，讓表單提交到後端處理
+            // 後端將決定是否成功發送驗證碼，並跳轉或重新渲染頁面
+            // 此處不再有前端頁面翻轉動畫，因為沒有 step2
+        });
+
+        // Email 輸入框的實時反饋
+        emailInput && emailInput.addEventListener('input', function(e) {
+            const value = emailInput.value;
+
+            // 清除之前的狀態
+            emailInput.classList.remove('error', 'success');
+            errorTip.textContent = '';
+            successTip.style.opacity = '0';
+
+            // 添加輸入時的細微反饋
+            emailInput.classList.add('typing');
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => {
+                emailInput.classList.remove('typing');
+            }, 150);
+
+            // 面板強力打擊效果（只在輸入時觸發，不包括刪除）
+            if (e.inputType !== 'deleteContentBackward' && e.inputType !== 'deleteContentForward') {
+                // 面板打擊動畫
+                panel.classList.remove('input-bounce');
+                void panel.offsetWidth; // 強制重繪
+                panel.classList.add('input-bounce');
+
+                // 輸入框同步反饋
+                emailInput.classList.remove('punch-feedback');
+                void emailInput.offsetWidth;
+                emailInput.classList.add('punch-feedback');
+
+                setTimeout(() => {
+                    panel.classList.remove('input-bounce');
+                    emailInput.classList.remove('punch-feedback');
+                }, 100);
+            }
+        });
+
+        // Email 格式簡單驗證 (可選，後端仍需嚴格驗證)
+        emailInput && emailInput.addEventListener('blur', function() {
+            const value = emailInput.value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (value && !emailPattern.test(value)) {
+                emailInput.classList.add('error');
+                errorTip.textContent = '請輸入有效的電子郵件格式。';
+            } else {
+                emailInput.classList.remove('error');
+                errorTip.textContent = '';
+            }
+        });
+    </script>
+</body>
+</html>
