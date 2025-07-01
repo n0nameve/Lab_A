@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>資料中心</title>
+  <!-- 復用已登入首頁的全域樣式 -->
+  <link rel="stylesheet" href="主功能頁.css" />
+  <style>
+    /* —— 從 已登入首頁 複製的根變數 —— */
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+    }
+
+    // GPT聊天處理器
+    function setupGPTChatHandlers() {
+      const gptSessionId = crypto.randomUUID();
+
+      // 創建消息元素
+      function createGPTMessageElement(isUser, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'gpt-message ' + (isUser ? 'gpt-user-message' : 'gpt-bot-message');
+        const textDiv = document.createElement('div');
+        textDiv.className = 'gpt-message-text';
+        textDiv.textContent = text;
+        msgDiv.appendChild(textDiv);
+        return msgDiv;
+      }
+
+      // 發送消息處理
+      async function handleGPTSend(topic, input, button) {
+        const userText = input.value.trim();
+        if (!userText) return;
+
+        // 找到對應的消息容器
+        const messagesDiv = document.getElementById(`${topic}-messages`);
+        if (!messagesDiv) return;
+
+        // 清空輸入框並禁用按鈕
+        input.value = '';
+        button.disabled = true;
+
+        // 添加用戶消息
+        messagesDiv.appendChild(createGPTMessageElement(true, userText));
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        // 顯示載入中消息
+        const loadingDiv = createGPTMessageElement(false, '');
+        const loadingText = loadingDiv.querySelector('.gpt-message-text');
+        loadingText.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border:3px solid #fff;border-top:3px solid #000;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;"></span> 載入中...`;
+        messagesDiv.appendChild(loadingDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        try {
+          // 根據主題調整問題內容
+          const contextQuestion = `關於${topic === 'html' ? 'HTML' : topic === 'css' ? 'CSS' : 'JavaScript'}的問題：${userText}`;
+          
+          // 模擬API調用
+          const response = await fetch('http://localhost:8080/GPT/P1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              question: contextQuestion, 
+              sessionId: `${gptSessionId}_${topic}` 
+            })
+          });
+          
+          const reply = response.ok ? await response.text() : '伺服器錯誤，請稍後再試';
+          loadingText.textContent = reply;
+        } catch (e) {
+          loadingText.textContent = '連線失敗，請檢查網路與伺服器狀態';
+        } finally {
+          button.disabled = false;
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+      }
+
+      // 綁定事件
+      const buttons = document.querySelectorAll('.gpt-send-button');
+      const inputs = document.querySelectorAll('.gpt-input');
+
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const topic = button.dataset.topic;
+          const input = document.querySelector(`.gpt-input[data-topic="${topic}"]`);
+          if (input) {
+            handleGPTSend(topic, input, button);
+          }
+        });
+      });
+
+      inputs.forEach(input => {
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const topic = input.dataset.topic;
+            const button = document.querySelector(`.gpt-send-button[data-topic="${topic}"]`);
+            if (button) {
+              handleGPTSend(topic, input, button);
+            }
+          }
+        });
+      });
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+
+    /* —— Header 與 Footer —— */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links > div { position: relative; padding: 0 1rem; cursor: pointer; color: var(--text-light); }
+    .nav-links > div::before,
+    .nav-links > div::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; height: 2px;
+      background: var(--text-light);
+      transform: scaleX(0);
+      transition: transform 0.15s ease;
+    }
+    .nav-links > div::before { top: -16px; }
+    .nav-links > div::after  { bottom: -16px; }
+    .nav-links > div:hover { color: #fff; }
+    .nav-links > div:hover::before,
+    .nav-links > div:hover::after { transform: scaleX(1); }
+
+    .footer {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 1.14em;
+    }
+
+    /* —— 主內容區 —— */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+    .data-center {
+      display: flex;
+      width: 100%;
+      max-width: 1600px;
+      gap: 0; /* 移除間隙讓背景連接 */
+      min-height: 100%; /* 確保容器至少占滿整個高度 */
+    }
+    .sidebar {
+      width: 240px;
+      background: var(--bg-secondary); /* 整個側邊欄都是深灰色 */
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-content {
+      background: var(--bg-secondary);
+      position: relative;
+    }
+    .sidebar h2 {
+      margin: 0;
+      font-size: 1.2em;
+      color: var(--text-light);
+      background: var(--bg-secondary); /* 預設深灰色 */
+      padding: 16px;
+      font-weight: normal;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar h2:hover {
+      color: #ffffff; /* hover時字體變亮 */
+    }
+    .sidebar h2.active {
+      background: #61f6d6; /* 改為註冊成功的青綠色 */
+      color: #0d0d0f; /* 使用深色文字以獲得更好的對比度 */
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background: var(--bg-secondary);
+    }
+    .sidebar li {
+      margin: 0;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 16px; /* 與標題相同的padding */
+      font-size: 1.2em; /* 與標題相同的字體大小 */
+      transition: all 0.2s ease;
+      position: relative;
+      background: var(--bg-secondary); /* 預設深灰色 */
+      border-bottom: 1px solid var(--bg-primary); /* 項目之間的分隔線 */
+    }
+    .sidebar li:hover {
+      color: #ffffff; /* hover時字體變亮 */
+    }
+    .sidebar li.active {
+      background: #61f6d6; /* 改為註冊成功的青綠色 */
+      color: #0d0d0f; /* 使用深色文字以獲得更好的對比度 */
+    }
+
+    .content {
+      flex: 1;
+      background: var(--bg-secondary); /* 與側邊欄相同的背景色 */
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .content details {
+      margin-bottom: 24px;
+      border: 1px solid var(--border-input);
+      border-radius: 4px;
+      background: var(--bg-primary); /* details區塊使用主要背景色形成對比 */
+      padding: 16px;
+    }
+    .content summary {
+      font-size: 1.2em;
+      cursor: pointer;
+      list-style: none;
+      color: var(--text-light);
+      position: relative;
+      padding-left: 24px; /* 為箭頭留出空間 */
+    }
+    .content summary::-webkit-details-marker {
+      display: none; /* 隱藏預設的箭頭 */
+    }
+    .content summary::before {
+      content: "▶"; /* 右箭頭 */
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--text-light);
+      transition: transform 0.2s ease;
+    }
+    .content details[open] summary::before {
+      transform: rotate(90deg); /* 展開時旋轉90度變成下箭頭 */
+    }
+    .question {
+      margin: 16px 0;
+    }
+    .question h3 {
+      margin: 0 0 8px;
+      font-size: 1.1em;
+    }
+    .options {
+      list-style: none;
+      padding: 0;
+    }
+    .options li {
+      padding: 8px;
+      margin: 4px 0;
+      border-radius: 4px;
+      color: var(--text-light);
+    }
+    .options .correct { background: #4ade80; color: #0f172a; }
+    .options .incorrect { background: #f87171; color: #0f172a; }
+
+    /* GPT聊天框樣式 - 簡潔版 */
+    .gpt-chat-box {
+      background-color: var(--bg-primary);
+      border-radius: 8px;
+      margin-top: 16px;
+      padding: 16px;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 消息列表 */
+    .gpt-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      padding-right: 4px;
+    }
+
+    /* 單條消息 */
+    .gpt-message {
+      display: flex;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    /* GPT消息（靠左） */
+    .gpt-bot-message {
+      justify-content: flex-start;
+    }
+
+    .gpt-bot-message .gpt-message-text {
+      background: var(--bg-bot-input);
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: var(--text-bot);
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    /* 用戶消息（靠右） */
+    .gpt-user-message {
+      justify-content: flex-end;
+    }
+
+    .gpt-user-message .gpt-message-text {
+      background: var(--bg-user);
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: var(--text-user);
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    /* 輸入區 */
+    .gpt-input-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-input);
+    }
+
+    .gpt-input-area input {
+      flex: 1;
+      background: var(--bg-bot-input);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text-bot);
+      font-size: 0.95em;
+      outline: none;
+    }
+
+    .gpt-input-area input::placeholder {
+      color: var(--placeholder);
+    }
+
+    .gpt-input-area button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .gpt-input-area button:hover {
+      color: var(--text-bot);
+    }
+
+    .gpt-input-area button:disabled {
+      color: var(--btn-disabled);
+      cursor: default;
+    }
+
+    /* 筆記容器樣式 */
+    .notes-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+      padding: 16px;
+    }
+
+    .note-item {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .note-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .note-item img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .note-title {
+      padding: 12px 16px;
+      color: var(--text-light);
+      font-size: 1.1em;
+      text-align: center;
+      background: var(--bg-primary);
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .notes-container {
+        grid-template-columns: 1fr; /* 小螢幕一行一張 */
+        gap: 16px;
+      }
+      
+      .note-item img {
+        height: 200px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .notes-container {
+        grid-template-columns: repeat(2, 1fr); /* 大螢幕一行兩張 */
+      }
+    }
+      text-align: center;
+      margin-top: 32px;
+    }
+    .replay-btn {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 12px 24px;
+      background: var(--bg-primary);
+      color: var(--text-light);
+      border: 1px solid var(--text-light);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .replay-btn:hover {
+      background: var(--bg-user);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header —— 與已登入首頁完全相同 -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <div>Logo</div>
+      <div class="nav-links">
+        <div>資料中心</div>
+        <div>商城</div>
+        <div>經驗值</div>
+        <div>設定</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="data-center">
+      <!-- 左側選單 -->
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <h2 id="sidebarTitle" class="active" onclick="selectTitle()">做過的題目</h2>
+          <ul id="sidebarMenu">
+            <li onclick="toggleConnection(this)">GPT紀錄</li>
+            <li onclick="toggleConnection(this)">筆記存檔</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- 右側內容 -->
+      <section class="content">
+        <!-- 第一組教學模組 -->
+        <details open>
+          <summary>1. 一小時掌握 HTML</summary>
+          <div class="question">
+            <h3>1. 題目</h3>
+            <ul class="options">
+              <li class="correct">A. Lorem ipsum dolor sit amet</li>
+              <li>B. consectetur adipisicing elit</li>
+              <li>C. sed do eiusmod tempor incididunt</li>
+              <li>D. ut labore et dolore magna aliqua</li>
+            </ul>
+          </div>
+          <div class="question">
+            <h3>2. 題目</h3>
+            <ul class="options">
+              <li class="correct">A. Lorem ipsum dolor sit amet</li>
+              <li>B. consectetur adipisicing elit</li>
+              <li class="incorrect">C. sed do eiusmod tempor incididunt</li>
+              <li>D. ut labore et dolore magna aliqua</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- 第二組教學模組 -->
+        <details>
+          <summary>2. CSS 教學</summary>
+          <div class="question">
+            <h3>1. CSS選擇器</h3>
+            <ul class="options">
+              <li class="correct">A. class選擇器使用.符號</li>
+              <li>B. id選擇器使用#符號</li>
+              <li>C. 元素選擇器直接寫標籤名</li>
+              <li>D. 以上皆正確</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- 第三組教學模組 -->
+        <details>
+          <summary>3. JavaScript 基礎</summary>
+          <div class="question">
+            <h3>1. 變數宣告</h3>
+            <ul class="options">
+              <li>A. var 是函數作用域</li>
+              <li class="correct">B. let 是塊級作用域</li>
+              <li>C. const 不能重新賦值</li>
+              <li>D. 以上皆正確</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- 圖表與按鈕 -->
+        <div class="chart-container">
+          <!-- 這裡您可嵌入 <canvas> 或其他圖表元件 -->
+          <p>答對率 75%</p>
+          <div style="width: 300px; height: 200px; background: var(--bg-secondary); margin: 20px auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-input);">
+            <span>圖表區域</span>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <button class="replay-btn">重看影片</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer —— 與已登入首頁完全相同 -->
+  <footer class="footer">客服信箱</footer>
+
+  <script>
+    function toggleConnection(clickedItem) {
+      const title = document.getElementById('sidebarTitle');
+      const allItems = document.querySelectorAll('.sidebar li');
+      
+      // 移除標題和所有項目的 active 狀態
+      title.classList.remove('active');
+      allItems.forEach(item => item.classList.remove('active'));
+      
+      // 為點擊的項目添加 active 狀態
+      clickedItem.classList.add('active');
+      
+      // 載入對應內容
+      updateContent(clickedItem.textContent);
+    }
+    
+    function selectTitle() {
+      const title = document.getElementById('sidebarTitle');
+      const allItems = document.querySelectorAll('.sidebar li');
+      
+      // 移除所有選單項目的 active 狀態
+      allItems.forEach(item => item.classList.remove('active'));
+      
+      // 為標題添加 active 狀態
+      title.classList.add('active');
+      
+      // 恢復原始內容
+      restoreOriginalContent();
+    }
+    
+    function updateContent(menuItem) {
+      const content = document.querySelector('.content');
+      if (menuItem === 'GPT紀錄') {
+        content.innerHTML = `
+          <!-- HTML 教學對話紀錄 -->
+          <details open>
+            <summary>1. 一小時掌握 HTML</summary>
+            <div class="gpt-chat-box">
+              <div class="gpt-messages" id="html-messages">
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">歡迎來到 HTML 學習！有什麼問題可以問我。</div>
+                </div>
+                <div class="gpt-message gpt-user-message">
+                  <div class="gpt-message-text">什麼是 HTML 標籤？</div>
+                </div>
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">HTML 標籤是用來定義網頁結構的元素，例如 &lt;h1&gt; 用於標題，&lt;p&gt; 用於段落。</div>
+                </div>
+              </div>
+              <div class="gpt-input-area">
+                <input type="text" class="gpt-input" placeholder="輸入訊息…" data-topic="html" />
+                <button class="gpt-send-button" data-topic="html">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </details>
+
+          <!-- CSS 教學對話紀錄 -->
+          <details>
+            <summary>2. CSS 教學</summary>
+            <div class="gpt-chat-box">
+              <div class="gpt-messages" id="css-messages">
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">歡迎來到 CSS 學習！有任何樣式相關的問題都可以問我。</div>
+                </div>
+                <div class="gpt-message gpt-user-message">
+                  <div class="gpt-message-text">如何改變文字顏色？</div>
+                </div>
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">使用 CSS 的 color 屬性，例如：color: red; 或 color: #ff0000;</div>
+                </div>
+              </div>
+              <div class="gpt-input-area">
+                <input type="text" class="gpt-input" placeholder="輸入訊息…" data-topic="css" />
+                <button class="gpt-send-button" data-topic="css">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </details>
+
+          <!-- JavaScript 教學對話紀錄 -->
+          <details>
+            <summary>3. JavaScript 基礎</summary>
+            <div class="gpt-chat-box">
+              <div class="gpt-messages" id="js-messages">
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">歡迎來到 JavaScript 學習！準備好學習程式邏輯了嗎？</div>
+                </div>
+                <div class="gpt-message gpt-user-message">
+                  <div class="gpt-message-text">let 和 var 有什麼不同？</div>
+                </div>
+                <div class="gpt-message gpt-bot-message">
+                  <div class="gpt-message-text">let 是塊級作用域，var 是函數作用域。let 更安全，建議優先使用。</div>
+                </div>
+              </div>
+              <div class="gpt-input-area">
+                <input type="text" class="gpt-input" placeholder="輸入訊息…" data-topic="javascript" />
+                <button class="gpt-send-button" data-topic="javascript">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </details>
+        `;
+        
+        // 重新綁定聊天功能
+        setupGPTChatHandlers();
+      } else if (menuItem === '筆記存檔') {
+        content.innerHTML = `
+          <!-- HTML 筆記 -->
+          <details open>
+            <summary>1. 一小時掌握 HTML</summary>
+            <div class="notes-container">
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=HTML+標籤+總結" alt="HTML 標籤總結" />
+                <div class="note-title">HTML 標籤總結</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=HTML+語義化+筆記" alt="HTML 語義化筆記" />
+                <div class="note-title">HTML 語義化筆記</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=表單元素+整理" alt="表單元素整理" />
+                <div class="note-title">表單元素整理</div>
+              </div>
+            </div>
+          </details>
+
+          <!-- CSS 筆記 -->
+          <details>
+            <summary>2. CSS 教學</summary>
+            <div class="notes-container">
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=CSS+選擇器+筆記" alt="CSS 選擇器筆記" />
+                <div class="note-title">CSS 選擇器筆記</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=Flexbox+佈局+指南" alt="Flexbox 佈局指南" />
+                <div class="note-title">Flexbox 佈局指南</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=響應式設計+重點" alt="響應式設計重點" />
+                <div class="note-title">響應式設計重點</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=動畫效果+筆記" alt="動畫效果筆記" />
+                <div class="note-title">動畫效果筆記</div>
+              </div>
+            </div>
+          </details>
+
+          <!-- JavaScript 筆記 -->
+          <details>
+            <summary>3. JavaScript 基礎</summary>
+            <div class="notes-container">
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=JavaScript+基礎語法" alt="JavaScript 基礎語法" />
+                <div class="note-title">JavaScript 基礎語法</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=DOM+操作+筆記" alt="DOM 操作筆記" />
+                <div class="note-title">DOM 操作筆記</div>
+              </div>
+              <div class="note-item">
+                <img src="https://via.placeholder.com/400x300/1a1a1c/c3c3c3?text=事件處理+整理" alt="事件處理整理" />
+                <div class="note-title">事件處理整理</div>
+              </div>
+            </div>
+          </details>
+        `;
+      }
+    }
+    
+    function restoreOriginalContent() {
+      const content = document.querySelector('.content');
+      content.innerHTML = `
+        <!-- 第一組教學模組 -->
+        <details open>
+          <summary>1. 一小時掌握 HTML</summary>
+          <div class="details-content">
+            <div class="questions-section">
+              <div class="question">
+                <h3>1. 題目</h3>
+                <ul class="options">
+                  <li class="correct">A. Lorem ipsum dolor sit amet</li>
+                  <li>B. consectetur adipisicing elit</li>
+                  <li>C. sed do eiusmod tempor incididunt</li>
+                  <li>D. ut labore et dolore magna aliqua</li>
+                </ul>
+              </div>
+              <div class="question">
+                <h3>2. 題目</h3>
+                <ul class="options">
+                  <li class="correct">A. Lorem ipsum dolor sit amet</li>
+                  <li>B. consectetur adipisicing elit</li>
+                  <li class="incorrect">C. sed do eiusmod tempor incididunt</li>
+                  <li>D. ut labore et dolore magna aliqua</li>
+                </ul>
+              </div>
+            </div>
+            <div class="stats-section">
+              <div class="stats-title">答對率</div>
+              <div class="pie-chart"></div>
+              <div class="percentage">60%</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- 第二組教學模組 -->
+        <details>
+          <summary>2. CSS 教學</summary>
+          <div class="details-content">
+            <div class="questions-section">
+              <div class="question">
+                <h3>1. CSS選擇器</h3>
+                <ul class="options">
+                  <li class="correct">A. class選擇器使用.符號</li>
+                  <li>B. id選擇器使用#符號</li>
+                  <li>C. 元素選擇器直接寫標籤名</li>
+                  <li>D. 以上皆正確</li>
+                </ul>
+              </div>
+            </div>
+            <div class="stats-section">
+              <div class="stats-title">答對率</div>
+              <div class="pie-chart"></div>
+              <div class="percentage">75%</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- 第三組教學模組 -->
+        <details>
+          <summary>3. JavaScript 基礎</summary>
+          <div class="details-content">
+            <div class="questions-section">
+              <div class="question">
+                <h3>1. 變數宣告</h3>
+                <ul class="options">
+                  <li>A. var 是函數作用域</li>
+                  <li class="correct">B. let 是塊級作用域</li>
+                  <li>C. const 不能重新賦值</li>
+                  <li>D. 以上皆正確</li>
+                </ul>
+              </div>
+            </div>
+            <div class="stats-section">
+              <div class="stats-title">答對率</div>
+              <div class="pie-chart"></div>
+              <div class="percentage">85%</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- 重看影片按鈕 -->
+        <div style="text-align: right;">
+          <button class="replay-btn">重看影片</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

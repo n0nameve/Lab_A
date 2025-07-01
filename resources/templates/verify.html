@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>驗證碼驗證與註冊</title>
+    <style>
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --input-glow: #61f6d6;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+    .navbar, .footer {
+      background: var(--bg-secondary);
+      padding: 16px 24px;
+      font-size: 1.3em;
+      text-align: center;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      perspective: 1000px;
+    }
+    .register-panel {
+      width: 380px;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      text-align: center;
+      transform-style: preserve-3d;
+      transition: transform 0.8s linear;
+      position: relative;
+    }
+    
+    .register-panel.success-animation {
+      animation: flipAndShrink 0.8s linear forwards;
+    }
+    
+    @keyframes flipAndShrink {
+      0% {
+        transform: rotateX(0deg) scale(1);
+      }
+      25% {
+        transform: rotateX(180deg) scale(0.95);
+      }
+      50% {
+        transform: rotateX(360deg) scale(0.9);
+      }
+      75% {
+        transform: rotateX(540deg) scale(0.85);
+      }
+      100% {
+        transform: rotateX(720deg) scaleX(0.75) scaleY(0.25);
+      }
+    }
+    
+    .register-panel.success-animation .original-content {
+      opacity: 0;
+      transition: opacity 0.1s ease-out;
+    }
+    
+    .register-panel.success-animation::after {
+      content: "註冊成功";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scaleX(1.33) scaleY(4);
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--input-glow);
+      opacity: 0;
+      animation: showSuccess 0.8s linear forwards;
+      backface-visibility: hidden;
+    }
+    
+    @keyframes showSuccess {
+      0%, 66.6% {
+        opacity: 0;
+      }
+      67%, 100% {
+        opacity: 1;
+      }
+    }
+    
+    .register-panel h2 {
+      margin: 0 0 24px;
+      font-size: 1.8rem;
+    }
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: var(--text-light);
+    }
+    .input-group input {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg-bot-input);
+      border: 1.5px solid var(--border-input);
+      border-radius: 6px;
+      color: var(--text-bot);
+      font-size: 1.2rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-group input:focus {
+      border-color: var(--input-glow);
+      box-shadow: 0 0 0 1px var(--input-glow);
+    }
+    .action-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-light);
+      background: #525257;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .action-btn:hover { background: #5a5a5f; }
+    .action-btn:active { transform: scale(0.98); }
+    
+    .success-message {
+      display: none;
+    }
+    
+    .success-message.show {
+      display: none;
+    }
+    
+    .error-message {
+      color: #ef4444;
+      font-size: 14px;
+      margin-top: 8px;
+      text-align: center;
+      padding: 8px 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 4px;
+      border-left: 3px solid #ef4444;
+    }
+    
+    @media(max-width:600px) {
+      .register-panel { width: 90%; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">Logo</div>
+  </header>
+  
+  <main>
+    <div class="register-panel" id="registerPanel">
+      <div class="original-content">
+        <h2>註冊帳號</h2> 
+        <p class="info-message">您的信箱 <strong th:text="${email}"></strong> 已驗證成功，請完成帳號設定。</p>
+
+        <form th:action="@{/register/complete}" th:object="${userForm}" method="post">
+            <div class="input-group">
+                <label for="name">名稱</label>
+                <input type="text" id="name" th:field="*{username}" placeholder="請輸入名稱" required>
+                <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></p>
+            </div>
+            
+            <div class="input-group">
+                <label for="passwd">密碼:</label>
+                <input type="password" id="passwd" th:field="*{passwd}" placeholder="請輸入密碼" required>
+                <p th:if="${#fields.hasErrors('passwd')}" th:errors="*{passwd}" class="error-message"></p>
+            </div>
+
+            <div class="input-group">
+                <label for="confirmPasswd">確認密碼:</label>
+                <input type="password" id="confirmPasswd" name="confirmPasswd" placeholder="請再次輸入密碼" required>
+                </div>
+            
+            <button class="action-btn" id="registerBtn" type="submit">送出註冊</button>
+        </form>
+
+        <div class="link-section">
+            <p><a th:href="@{/register}">重新開始註冊</a></p>
+            <p><a th:href="@{/login}">返回登入頁面</a></p>
+        </div>
+        </div>
+    </div>
+  </main>
+  
+  <footer class="footer">客服信箱</footer>
+
+  <script>
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(event) {
+    const pw = document.getElementById('passwd').value;
+    const cpw = document.getElementById('confirmPasswd').value;
+
+    if (pw !== cpw) {
+      alert('密碼與確認密碼不符！');
+      event.preventDefault(); // 阻止送出
+      return;
+    }
+      
+      // 執行前後翻轉並變矮動畫
+      const panel = document.getElementById('registerPanel');
+      panel.classList.add('success-animation');
+      
+      // TODO: 在此加上送出註冊請求的 AJAX 或表單提交邏輯
+    });
+  </script>
+</body>
+</html>

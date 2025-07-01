@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>題目頁面</title>
+  <style>
+    /* —— 從 setting.html 複製的根變數 —— */
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --accent-green: #61f6d6;
+      --accent-hover: #4fd1b1;
+      --white: #ffffff;
+      --black: #0d0d0f;
+      --nav-hover: #ffffff;
+      --sidebar-hover: #4fd1b1;
+      --box-shadow-dark: rgba(0, 0, 0, 0.18);
+      --box-shadow-medium: rgba(0, 0, 0, 0.13);
+      --box-shadow-light: rgba(0, 0, 0, 0.10);
+      --box-shadow-strong: rgba(0, 0, 0, 0.17);
+    }
+
+    /* 主題變數 - 深藍色主題 */
+    .theme-blue {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1e2a3a;
+      --text-light: #b8c5d1;
+      --bg-bot-input: #2a3441;
+      --text-bot: #d4e1ed;
+      --bg-user: #3a4a5c;
+      --text-user: #e6f1ff;
+      --border-input: #34424f;
+      --placeholder: #6b7c8a;
+      --btn-disabled: #4a5866;
+      --white: #ffffff;
+      --black: #0f1419;
+      --accent-green: #4a9eff;
+      --accent-hover: #3a8eef;
+    }
+
+    /* 主題變數 - 粉色主題 */
+    .theme-pink {
+      --bg-primary: #fdf2f8;
+      --bg-secondary: #fce7f3;
+      --text-light: #881c4f;
+      --white: #881c4f;
+      --black: #fdf2f8;
+      --bg-bot-input: #fbcfe8;
+      --text-bot: #881c4f;
+      --bg-user: #db2777;
+      --text-user: #fdf2f8;
+      --border-input: #be185d;
+      --placeholder: #9d174d;
+      --btn-disabled: #fbcfe8;
+      --accent-green: #ec4899;
+      --accent-hover: #db2777;
+    }
+
+    /* 主題變數 - 天空藍主題 */
+    .theme-sky {
+      --bg-primary: #f0f9ff;
+      --bg-secondary: #e0f2fe;
+      --text-light: #0c4a6e;
+      --white: #0c4a6e;
+      --black: #f0f9ff;
+      --bg-bot-input: #bae6fd;
+      --text-bot: #0c4a6e;
+      --bg-user: #0ea5e9;
+      --text-user: #f0f9ff;
+      --border-input: #38bdf8;
+      --placeholder: #075985;
+      --btn-disabled: #bae6fd;
+      --accent-green: #0ea5e9;
+      --accent-hover: #0284c7;
+    }
+
+    /* 主題變數 - 亮色主題 */
+    .theme-light {
+      --bg-primary: rgb(237, 233, 223);
+      --bg-secondary: rgb(255, 251, 240);
+      --text-light: rgb(25, 20, 16);
+      --white: rgb(25, 20, 16);
+      --black: rgb(255, 251, 240);
+      --bg-bot-input: rgb(225, 221, 211);
+      --text-bot: rgb(25, 20, 16);
+      --bg-user: rgb(140, 136, 126);
+      --text-user: rgb(255, 251, 240);
+      --border-input: rgb(160, 160, 160);
+      --placeholder: rgb(100, 96, 86);
+      --btn-disabled: rgb(180, 176, 166);
+      --accent-green: #9ca3af;
+      --accent-hover: #6b7280;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* —— Header 樣式 —— */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 24px;
+      font-size: 1.3em;
+      border-bottom: 2px solid var(--border-input);
+    }
+
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      font-size: 1.4em;
+      font-weight: bold;
+      color: var(--accent-green);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links > div {
+      position: relative;
+      padding: 0 1rem;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: all 0.2s ease;
+    }
+
+    .nav-links > div::before,
+    .nav-links > div::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--text-light);
+      transform: scaleX(0);
+      transition: transform 0.15s ease;
+    }
+
+    .nav-links > div::before { top: -16px; }
+    .nav-links > div::after { bottom: -16px; }
+
+    .nav-links > div:hover { color: var(--white); }
+    .nav-links > div:hover::before,
+    .nav-links > div:hover::after { transform: scaleX(1); }
+
+    /* 主題特殊 hover 顏色 */
+    .theme-light .nav-links > div:hover,
+    .theme-pink .nav-links > div:hover,
+    .theme-sky .nav-links > div:hover {
+      color: var(--accent-green) !important;
+    }
+
+    /* —— 主要內容區域 —— */
+    main {
+      flex: 1;
+      padding: 40px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 40px;
+      border: 2px solid var(--border-input);
+      position: relative;
+    }
+
+    /* —— 題目樣式 —— */
+    .question {
+      margin-bottom: 50px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 30px;
+      border: 1px solid var(--border-input);
+    }
+
+    .question:last-of-type {
+      margin-bottom: 30px;
+    }
+
+    .question-title {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 24px;
+      color: var(--text-light);
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--accent-green);
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--bg-bot-input);
+      border: 2px solid var(--border-input);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .option:hover {
+      border-color: var(--accent-green);
+      background: var(--bg-user);
+      transform: translateX(8px);
+    }
+
+    .option.selected {
+      border-color: var(--accent-green);
+      background: var(--accent-green);
+      color: var(--black);
+    }
+
+    .option-letter {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-right: 16px;
+      min-width: 20px;
+    }
+
+    .option-text {
+      font-size: 1.1em;
+      line-height: 1.4;
+    }
+
+    /* —— 提交按鈕區域 —— */
+    .submit-area {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid var(--border-input);
+    }
+
+    .submit-btn {
+      font-family: var(--body-font, Inter, "Noto Sans TC", Arial, sans-serif);
+      font-size: 1.02rem;
+      font-weight: 600;
+      min-width: 9.5em;
+      min-height: 2.3em;
+      letter-spacing: 0.01em;
+      border: none;
+      background: var(--border-input);
+      color: var(--text-light);
+      box-shadow: 0 2px 12px var(--box-shadow-medium), 0 1.5px 4px var(--box-shadow-light);
+      cursor: pointer;
+      transition: background 0.2s cubic-bezier(.4, .09, .35, 1), color 0.2s, box-shadow .18s cubic-bezier(.4, .09, .35, 1);
+      user-select: none;
+      display: flex;
+      line-height: 1;
+      justify-content: center;
+      align-items: center;
+      height: 2rem;
+      text-decoration: none;
+      padding: 0 0.25rem;
+      border-radius: 4px;
+      position: static;
+      float: none;
+    }
+
+    .submit-btn::before {
+      display: none;
+    }
+
+    .submit-btn:hover,
+    .submit-btn:focus-visible {
+      outline: none;
+      background: var(--bg-user);
+      color: var(--text-light);
+      box-shadow: 0 4px 24px var(--box-shadow-strong), 0 2px 8px var(--box-shadow-medium);
+      transform: none;
+    }
+
+    .submit-btn:disabled {
+      background: var(--btn-disabled);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .submit-btn:disabled:hover {
+      background: var(--btn-disabled);
+      box-shadow: 0 2px 12px var(--box-shadow-medium), 0 1.5px 4px var(--box-shadow-light);
+      transform: none;
+    }
+
+    /* —— Footer 樣式 —— */
+    .footer {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 1.14em;
+      border-top: 2px solid var(--border-input);
+    }
+
+
+
+    /* —— 響應式設計 —— */
+    @media (max-width: 768px) {
+      .navbar-container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .nav-links {
+        gap: 20px;
+      }
+
+      .quiz-container {
+        padding: 24px;
+        margin: 0 12px;
+      }
+
+      .question {
+        padding: 20px;
+      }
+
+      .question-title {
+        font-size: 1.2em;
+      }
+
+      .option {
+        padding: 12px 16px;
+      }
+
+      .option:hover {
+        transform: none;
+      }
+
+      .submit-btn {
+        padding: 12px 30px;
+        font-size: 1.1em;
+      }
+
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+      }
+
+      .toast {
+        min-width: auto;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .options {
+        gap: 12px;
+      }
+
+      .option-letter {
+        margin-right: 12px;
+      }
+
+      .submit-area {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <div class="logo">Logo</div>
+      <div class="nav-links">
+        <div onclick="navigateTo('data')">資料中心</div>
+        <div onclick="navigateTo('shop')">商城</div>
+        <div onclick="navigateTo('exp')">經驗值</div>
+        <div onclick="navigateTo('settings')">設定</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容 -->
+  <main>
+    <div class="quiz-container">
+      <!-- 題目 1 -->
+      <div class="question">
+        <div class="question-title">1. 題目</div>
+        <div class="options">
+          <div class="option" onclick="selectOption(this, 1, 'A')">
+            <span class="option-letter">A.</span>
+            <span class="option-text">Lorem ipsum dolor sit amet</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 1, 'B')">
+            <span class="option-letter">B.</span>
+            <span class="option-text">consectetur adipisicing elit</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 1, 'C')">
+            <span class="option-letter">C.</span>
+            <span class="option-text">sed do eiusmod tempor incididunt</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 1, 'D')">
+            <span class="option-letter">D.</span>
+            <span class="option-text">ut labore et dolore magna aliqua</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 題目 2 -->
+      <div class="question">
+        <div class="question-title">2. 題目</div>
+        <div class="options">
+          <div class="option" onclick="selectOption(this, 2, 'A')">
+            <span class="option-letter">A.</span>
+            <span class="option-text">Lorem ipsum dolor sit amet</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 2, 'B')">
+            <span class="option-letter">B.</span>
+            <span class="option-text">consectetur adipisicing elit</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 2, 'C')">
+            <span class="option-letter">C.</span>
+            <span class="option-text">sed do eiusmod tempor incididunt</span>
+          </div>
+          <div class="option" onclick="selectOption(this, 2, 'D')">
+            <span class="option-letter">D.</span>
+            <span class="option-text">ut labore et dolore magna aliqua</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 提交按鈕 -->
+      <div class="submit-area">
+        <button class="submit-btn" onclick="submitQuiz()">提交</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">客服信箱</footer>
+
+  <script>
+    // 儲存用戶答案
+    let userAnswers = {};
+
+    // 選擇選項
+    function selectOption(element, questionNumber, option) {
+      // 移除同一題目的其他選項的選中狀態
+      const question = element.closest('.question');
+      const options = question.querySelectorAll('.option');
+      options.forEach(opt => opt.classList.remove('selected'));
+
+      // 設定當前選項為選中狀態
+      element.classList.add('selected');
+
+      // 儲存答案
+      userAnswers[questionNumber] = option;
+    }
+
+    // 提交測驗
+    function submitQuiz() {
+      const totalQuestions = document.querySelectorAll('.question').length;
+      const answeredQuestions = Object.keys(userAnswers).length;
+
+      if (answeredQuestions < totalQuestions) {
+        alert(`請完成所有題目再提交（已完成 ${answeredQuestions}/${totalQuestions} 題）`);
+        return;
+      }
+
+      // 模擬提交
+      alert('測驗已成功提交！');
+      
+      // 顯示答案摘要
+      setTimeout(() => {
+        let summary = '您的答案：\n';
+        for (let q in userAnswers) {
+          summary += `題目 ${q}: ${userAnswers[q]}\n`;
+        }
+        console.log(summary);
+      }, 1000);
+    }
+
+    // 導航功能
+    function navigateTo(page) {
+      // 這裡可以添加實際的導航邏輯
+      console.log(`導航至：${page}`);
+    }
+
+    // 主題切換功能（可以通過外部調用）
+    function changeTheme(theme) {
+      const body = document.body;
+      
+      // 移除所有主題類別
+      body.classList.remove('theme-blue', 'theme-pink', 'theme-sky', 'theme-light');
+      
+      // 套用新主題
+      if (theme !== 'dark') {
+        body.classList.add(`theme-${theme}`);
+      }
+      
+      // 儲存主題設定
+      localStorage.setItem('selectedTheme', theme);
+    }
+
+    // 獲取主題名稱
+    function getThemeName(theme) {
+      const names = {
+        'dark': '深色',
+        'blue': '深藍色',
+        'pink': '粉色',
+        'sky': '天空藍',
+        'light': '亮色'
+      };
+      return names[theme] || '深色';
+    }
+
+    // 初始化頁面
+    function initializePage() {
+      // 先清除所有主題類別
+      const body = document.body;
+      body.classList.remove('theme-blue', 'theme-pink', 'theme-sky', 'theme-light');
+      
+      // 強制使用深色主題
+      const savedTheme = 'dark'; // 強制使用深色主題
+      localStorage.setItem('selectedTheme', savedTheme);
+      
+      // 深色主題不需要添加任何類別，使用 :root 預設變數
+    }
+
+    // 頁面載入完成後初始化
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>
