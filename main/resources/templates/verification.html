@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>驗證碼驗證與註冊</title>
+    <style>
+        :root {
+            --bg-primary: #0d0d0f;
+            --bg-secondary: #1a1a1c;
+            --text-light: #c3c3c3;
+            --bg-bot-input: #2a2a2e;
+            --text-bot: #e5e7eb;
+            --bg-user: #3e3e42;
+            --text-user: #f3f4f6;
+            --border-input: #2c2c2e;
+            --border-error: #ea4444;
+            --placeholder: #6b7280;
+            --btn-disabled: #4b5563;
+            --input-glow: #61f6d6;
+            --success-green: #10b981;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            color: var(--text-light);
+            font-family: "Noto Sans TC", Arial, sans-serif;
+
+        }
+        .navbar {
+            background: var(--bg-secondary);
+            padding: 16px 24px;
+            font-size: 1.3em;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            perspective: 1200px;
+        }
+        .verify-panel {
+            width: 380px;
+            background: var(--bg-secondary);
+            color: var(--text-light);
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+            text-align: center;
+            position: relative;
+            top: 0; left: 0;
+            opacity: 1;
+            transform: rotateY(0deg) scale(1) translateZ(0);
+            transition: transform .4s cubic-bezier(.68,-0.55,.265,1.55),
+                        box-shadow .4s cubic-bezier(.68,-0.55,.265,1.55),
+                        filter .4s ease;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+        .verify-panel.animating-out {
+            opacity: 1;
+            transform: rotateY(-180deg) scale(0.75) translateZ(-80px) translateX(-25px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.6);
+            filter: brightness(1.2) contrast(1.1) saturate(1.2);
+            pointer-events: none;
+        }
+        .verify-panel.animating-in {
+            opacity: 1;
+            transform: rotateY(180deg) scale(0.75) translateZ(-80px) translateX(25px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.6);
+            filter: brightness(1.2) contrast(1.1) saturate(1.2);
+            pointer-events: none;
+        }
+        .verify-panel.animated-in {
+            opacity: 1;
+            transform: rotateY(0deg) scale(1) translateZ(0);
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+            filter: brightness(1) contrast(1) saturate(1);
+            pointer-events: auto;
+            transition: transform .5s cubic-bezier(.175,.885,.32,1.6),
+                        box-shadow .5s cubic-bezier(.175,.885,.32,1.6),
+                        filter .5s ease;
+        }
+
+        /* 修改：減小回正時的衝擊幅度，移除光效 */
+        .verify-panel.impact-bounce {
+            animation: impactBounce 0.5s cubic-bezier(.175,.885,.32,1.4);
+        }
+        @keyframes impactBounce {
+            0% {
+                transform: rotateY(0deg) scale(1) translateZ(0);
+            }
+            15% {
+                transform: rotateY(-1.5deg) scale(1.04) translateZ(5px);
+                box-shadow: 0 6px 24px rgba(0,0,0,.3);
+                filter: brightness(1.05) contrast(1.02);
+            }
+            35% {
+                transform: rotateY(1deg) scale(0.98) translateZ(-3px);
+                box-shadow: 0 3px 14px rgba(0,0,0,.2);
+                filter: brightness(0.98) contrast(1);
+            }
+            55% {
+                transform: rotateY(-0.5deg) scale(1.01) translateZ(2px);
+                box-shadow: 0 4px 18px rgba(0,0,0,.25);
+                filter: brightness(1.02) contrast(1.01);
+            }
+            75% {
+                transform: rotateY(0.3deg) scale(0.995) translateZ(-1px);
+                box-shadow: 0 4px 16px rgba(0,0,0,.2);
+                filter: brightness(1.01) contrast(1);
+            }
+            100% {
+                transform: rotateY(0deg) scale(1) translateZ(0);
+                box-shadow: 0 4px 16px rgba(0,0,0,.2);
+                filter: brightness(1) contrast(1);
+            }
+        }
+        .verify-panel.shake {
+            animation: shakeX 0.38s cubic-bezier(.37,2.08,.38,.77);
+        }
+        @keyframes shakeX {
+            10% { transform: translateX(-13px); }
+            26% { transform: translateX(10px);}
+            38% { transform: translateX(-7px);}
+            52% { transform: translateX(6px);}
+            70% { transform: translateX(-3px);}
+            100% { transform: translateX(0);}
+        }
+
+        /* 新增：更有力的輸入打擊效果 */
+        .verify-panel.input-bounce {
+            animation: inputPunch 0.10s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes inputPunch {
+            0% { transform: scale(1) translateY(0) rotate(0deg); }
+            40% { transform: scale(1.012) translateY(-1.5px) rotate(0.3deg); }
+            70% { transform: scale(0.997) translateY(0.5px) rotate(-0.15deg); }
+            100% { transform: scale(1) translateY(0) rotate(0deg); }
+        }
+
+        /* 新增：輸入框的同步反饋效果 */
+        .verify-panel input.punch-feedback {
+            animation: inputFieldPunch 0.08s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes inputFieldPunch {
+            0% { transform: scale(1); }
+            60% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .verify-panel h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+        }
+        .verify-panel .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+        .verify-panel label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+        .verify-panel input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-bot-input);
+            border: 1.5px solid var(--border-input);
+            border-radius: 6px;
+            color: var(--text-bot);
+            font-size: 1.2rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            outline: none;
+        }
+        .verify-panel input[type="text"]::placeholder {
+            color: var(--placeholder);
+        }
+        .verify-panel input:focus {
+            border-color: var(--input-glow);
+            box-shadow: 0 0 0 1px var(--input-glow);
+        }
+        .verify-panel input.error {
+            border-color: var(--border-error) !important;
+            box-shadow: 0 0 0 1px var(--border-error) !important;
+        }
+        .verify-panel input.success {
+            border-color: var(--success-green) !important;
+            box-shadow: 0 0 0 1px var(--success-green) !important;
+        }
+        /* 移除原本的hit動畫，改用更細膩的輸入反饋 */
+        .verify-panel input.typing {
+            background: #323237;
+        }
+
+        /* 新增進度條的打擊反饋 */
+        .progress-bar.punch {
+            animation: progressPunch 0.08s ease-out;
+        }
+        @keyframes progressPunch {
+            0% { transform: scaleY(1); }
+            60% { transform: scaleY(1.8); }
+            100% { transform: scaleY(1); }
+        }
+        .progress-container {
+            width: 100%;
+            height: 3px;
+            background: var(--border-input);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--input-glow);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        .verify-panel .resend-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-light);
+            background: var(--bg-user);
+            cursor: pointer;
+            transition: background .2s, transform 0.1s ease;
+            margin-bottom: 0;
+            margin-top: 8px; /* 調整重發按鈕的上邊距 */
+        }
+        .verify-panel .resend-btn:hover {
+            background: #525257;
+        }
+        .verify-panel .resend-btn:active {
+            transform: scale(0.98);
+        }
+        .verify-panel .login-link {
+            margin-top: 24px;
+        }
+        .verify-panel .login-link a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        .verify-panel .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* 固定提示區域高度，防止面板尺寸變化 */
+        .tip-container {
+            position: relative;
+            height: 20px;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        .error-tip, .success-tip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            font-size: 1rem;
+            text-align: left;
+            transition: opacity 0.2s ease;
+            margin: 0;
+        }
+
+        .error-tip {
+            color: var(--border-error);
+        }
+
+        .success-tip {
+            color: var(--success-green);
+        }
+
+        @media(max-width:600px) {
+            .verify-panel { width: 90%; padding: 24px; }
+        }
+        .footer {
+            background: var(--bg-secondary);
+            padding: 18px 0;
+            width: 100%; /* 確保頁腳佔滿整個寬度 */
+        }
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.14em;
+        }
+
+        /* 原有 verification.html 的樣式，調整以利整合 */
+        .container {
+            text-align: center;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            text-align: left; /* 錯誤訊息與輸入框對齊 */
+        }
+        .info-message {
+            color: blue;
+            font-size: 0.9em;
+            margin-top: 5px;
+            margin-bottom: 20px; /* 資訊訊息下方留些空間 */
+            text-align: left; /* 資訊訊息與輸入框對齊 */
+        }
+        .link-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .link-section p {
+            margin: 10px 0;
+        }
+        .link-section a {
+            color: var(--text-light); /* 連結使用主題顏色 */
+            text-decoration: none;
+        }
+        .link-section a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-container"><div>Logo</div></div>
+    </header>
+    <main>
+        <div class="verify-panel" id="verifyPanel">
+            <h2 id="panelTitle">輸入驗證碼</h2>
+
+            <p th:if="${error}" th:text="${error}" class="error-message"></p>
+            <p class="info-message">驗證碼已發送到 <span th:text="${email}"></span>。請檢查您的信箱 (包含垃圾郵件)。</p>
+
+            <form th:action="@{/verify/code}" method="post">
+                <div class="input-group">
+                    <label for="codeInput">驗證碼:</label>
+                    <input type="text" id="codeInput" name="code" placeholder="請輸入6位數驗證碼" maxlength="6" pattern="\d{6}" required>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="tip-container">
+                        <div class="error-tip" id="errorTip"></div>
+                        <div class="success-tip" id="successTip" style="opacity:0;"></div>
+                    </div>
+                </div>
+
+                <button class="resend-btn" id="resendBtn" type="button">重新發送驗證碼</button>
+                <button type="submit" style="display:none;" id="submitFormBtn"></button> </form>
+
+            <p class="login-link"><a th:href="@{/login}">返回登入頁面</a></p>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">客服信箱</div>
+    </footer>
+    <script th:inline="javascript">
+        const panel = document.getElementById('verifyPanel');
+        const codeInput = document.getElementById('codeInput');
+        const resendBtn = document.getElementById('resendBtn');
+        const errorTip = document.getElementById('errorTip');
+        const successTip = document.getElementById('successTip');
+        const panelTitle = document.getElementById('panelTitle');
+        const progressBar = document.getElementById('progressBar');
+        const submitFormBtn = document.getElementById('submitFormBtn'); // 隱藏的提交按鈕
+
+        let inputTimeout;
+
+        // 模擬初始面板動畫 (如同從信箱輸入頁面過來)
+        // 這是可選的，如果您希望面板在載入時是靜態的，可以移除它。
+        panel.classList.add('impact-bounce');
+        setTimeout(() => {
+            panel.classList.remove('impact-bounce');
+            codeInput.focus(); // 動畫結束後聚焦輸入框
+        }, 500);
+
+        resendBtn.addEventListener('click', function() {
+            // 模擬按鈕按下回饋
+            resendBtn.style.transform = 'scale(0.95)';
+            resendBtn.style.background = '#525257';
+
+            setTimeout(() => {
+                resendBtn.style.transform = '';
+                resendBtn.style.background = '';
+            }, 120);
+
+            codeInput.value = '';
+            codeInput.classList.remove('error', 'success');
+            errorTip.textContent = '';
+            successTip.style.opacity = '0';
+            progressBar.style.width = '0%';
+            progressBar.style.background = 'var(--input-glow)'; // 重置進度條顏色
+            codeInput.focus();
+            panelTitle.textContent = '驗證碼已重新發送';
+            // 在實際應用中，您會在這裡觸發後端呼叫以重新發送驗證碼
+            console.log('重新發送驗證碼...');
+            setTimeout(() => {
+                panelTitle.textContent = '輸入驗證碼';
+            }, 1200);
+        });
+
+        // 優化的輸入處理
+        codeInput && codeInput.addEventListener('input', function(e) {
+            const value = codeInput.value;
+            const length = value.length;
+
+            // 更新進度條 (帶有打擊感)
+            progressBar.style.width = (length / 6 * 100) + '%';
+            if (e.inputType !== 'deleteContentBackward' && e.inputType !== 'deleteContentForward') {
+                progressBar.classList.remove('punch');
+                void progressBar.offsetWidth; // 強制重繪
+                progressBar.classList.add('punch');
+                setTimeout(() => {
+                    progressBar.classList.remove('punch');
+                }, 80);
+            }
+
+            // 清除之前的狀態
+            codeInput.classList.remove('error', 'success');
+            errorTip.textContent = '';
+            successTip.style.opacity = '0';
+
+            // 添加輸入時的細微反饋
+            codeInput.classList.add('typing');
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => {
+                codeInput.classList.remove('typing');
+            }, 150);
+
+            // 面板強力打擊效果 (只在輸入時觸發，不包括刪除)
+            if (e.inputType !== 'deleteContentBackward' && e.inputType !== 'deleteContentForward') {
+                // 面板打擊動畫
+                panel.classList.remove('input-bounce');
+                void panel.offsetWidth; // 強制重繪
+                panel.classList.add('input-bounce');
+
+                // 輸入框同步反饋
+                codeInput.classList.remove('punch-feedback');
+                void codeInput.offsetWidth;
+                codeInput.classList.add('punch-feedback');
+
+                setTimeout(() => {
+                    panel.classList.remove('input-bounce');
+                    codeInput.classList.remove('punch-feedback');
+                }, 100);
+            }
+
+            if (length === 6) {
+                // 短暫延遲讓使用者看到完整輸入
+                setTimeout(() => {
+                    // 在此處不進行前端驗證，直接提交表單到後端
+                    console.log('驗證碼已填滿，提交表單進行後端驗證...');
+                    document.querySelector('form').submit();
+
+                    // 備註：成功和失敗的視覺回饋將由後端處理後，在頁面重新載入或跳轉時顯示
+                    // 您可以考慮在後端驗證失敗時，將錯誤訊息重新傳遞回 Thymeleaf 頁面
+                    // 並利用 `th:if="${error}"` 來顯示。
+                }, 100);
+            }
+        });
+
+        // 阻止非數字輸入
+        codeInput && codeInput.addEventListener('keypress', function(e) {
+            if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>設定</title>
+  <!-- 復用已登入首頁的全域樣式 -->
+  <link rel="stylesheet" href="主功能頁.css" />
+  <style>
+    /* —— 從 已登入首頁 複製的根變數 —— */
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --accent-green: #61f6d6;
+      --accent-hover: #4fd1b1;
+      --white: #ffffff;
+      --black: #0d0d0f;
+      --nav-hover: #ffffff;
+      --sidebar-hover: #4fd1b1;
+    }
+
+    /* 主題變數 - 深藍色主題 */
+    .theme-blue {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1e2a3a;
+      --text-light: #b8c5d1;
+      --bg-bot-input: #2a3441;
+      --text-bot: #d4e1ed;
+      --bg-user: #3a4a5c;
+      --text-user: #e6f1ff;
+      --border-input: #34424f;
+      --placeholder: #6b7c8a;
+      --btn-disabled: #4a5866;
+      --white: #ffffff;
+      --black: #0f1419;
+      --accent-green: #4a9eff;
+      --accent-hover: #3a8eef;
+    }
+
+    /* 主題變數 - 粉色主題 */
+    .theme-pink {
+      /* 主要背景和文字 */
+      --bg-primary: #fdf2f8;
+      --bg-secondary: #fce7f3;
+      --text-light: #881c4f;
+      --white: #881c4f;
+      --black: #fdf2f8;
+      
+      /* 聊天系統 */
+      --bg-bot-input: #fbcfe8;
+      --text-bot: #881c4f;
+      --bg-user: #db2777;
+      --text-user: #fdf2f8;
+      
+      /* 界面元素 */
+      --border-input: #be185d;
+      --placeholder: #9d174d;
+      --btn-disabled: #fbcfe8;
+      --border-light: #db2777;
+      --color-selected: #9d174d;
+      
+      /* 遮罩效果 */
+      --overlay-bg: rgba(136, 28, 79, 0.7);
+      --overlay-text-bg: rgba(136, 28, 79, 0.8);
+      --text-shadow: #fdf2f8;
+      
+      /* 繪圖工具 */
+      --pen-color-default: #881c4f;
+      --eraser-color: #db2777;
+      --color-picker-bg: rgba(253, 242, 248, 0.95);
+      --color-border-transparent: rgba(136, 28, 79, 0.4);
+      
+      /* 繪圖顏色 */
+      --color-red: #dc267f;
+      --color-yellow: #fbbf24;
+      --color-blue: #3b82f6;
+      --color-white: #881c4f;
+      
+      /* 載入動畫 */
+      --spinner-border: #fbcfe8;
+      
+      /* 陰影效果 */
+      --shadow-light: rgba(136, 28, 79, 0.1);
+      --shadow-medium: rgba(136, 28, 79, 0.2);
+      --shadow-dark: rgba(136, 28, 79, 0.4);
+      --box-shadow-dark: rgba(136, 28, 79, 0.3);
+      --box-shadow-medium: rgba(136, 28, 79, 0.2);
+      --box-shadow-light: rgba(136, 28, 79, 0.1);
+      --box-shadow-strong: rgba(136, 28, 79, 0.4);
+      
+      /* 選中發光效果 */
+      --selected-glow: rgba(136, 28, 79, 0.8);
+      --selected-glow-light: rgba(136, 28, 79, 0.4);
+      --selected-glow-medium: rgba(136, 28, 79, 0.6);
+      --selected-glow-strong: rgba(136, 28, 79, 0.7);
+      
+      /* 強調色 */
+      --accent-green: #ec4899;
+      --accent-hover: #db2777;
+    }
+
+    /* 主題變數 - 天空藍主題 */
+    .theme-sky {
+      /* 主要背景和文字 */
+      --bg-primary: #f0f9ff;
+      --bg-secondary: #e0f2fe;
+      --text-light: #0c4a6e;
+      --white: #0c4a6e;
+      --black: #f0f9ff;
+      
+      /* 聊天系統 */
+      --bg-bot-input: #bae6fd;
+      --text-bot: #0c4a6e;
+      --bg-user: #0ea5e9;
+      --text-user: #f0f9ff;
+      
+      /* 界面元素 */
+      --border-input: #38bdf8;
+      --placeholder: #075985;
+      --btn-disabled: #bae6fd;
+      --border-light: #0ea5e9;
+      --color-selected: #075985;
+      
+      /* 遮罩效果 */
+      --overlay-bg: rgba(12, 74, 110, 0.7);
+      --overlay-text-bg: rgba(12, 74, 110, 0.8);
+      --text-shadow: #f0f9ff;
+      
+      /* 繪圖工具 */
+      --pen-color-default: #0c4a6e;
+      --eraser-color: #0ea5e9;
+      --color-picker-bg: rgba(240, 249, 255, 0.95);
+      --color-border-transparent: rgba(12, 74, 110, 0.4);
+      
+      /* 繪圖顏色 */
+      --color-red: #ef4444;
+      --color-yellow: #fbbf24;
+      --color-blue: #0ea5e9;
+      --color-white: #0c4a6e;
+      
+      /* 載入動畫 */
+      --spinner-border: #bae6fd;
+      
+      /* 陰影效果 */
+      --shadow-light: rgba(12, 74, 110, 0.1);
+      --shadow-medium: rgba(12, 74, 110, 0.2);
+      --shadow-dark: rgba(12, 74, 110, 0.4);
+      --box-shadow-dark: rgba(12, 74, 110, 0.3);
+      --box-shadow-medium: rgba(12, 74, 110, 0.2);
+      --box-shadow-light: rgba(12, 74, 110, 0.1);
+      --box-shadow-strong: rgba(12, 74, 110, 0.4);
+      
+      /* 選中發光效果 */
+      --selected-glow: rgba(12, 74, 110, 0.8);
+      --selected-glow-light: rgba(12, 74, 110, 0.4);
+      --selected-glow-medium: rgba(12, 74, 110, 0.6);
+      --selected-glow-strong: rgba(12, 74, 110, 0.7);
+      
+      /* 強調色 */
+      --accent-green: #0ea5e9;
+      --accent-hover: #0284c7;
+    }
+
+    /* 主題變數 - 亮色主題 */
+    .theme-light {
+      /* 主要背景和文字 */
+      --bg-primary: rgb(237, 233, 223);
+      --bg-secondary: rgb(255, 251, 240);
+      --text-light: rgb(25, 20, 16);
+      --white: rgb(25, 20, 16);
+      --black: rgb(255, 251, 240);
+      
+      /* 聊天系統 */
+      --bg-bot-input: rgb(225, 221, 211);
+      --text-bot: rgb(25, 20, 16);
+      --bg-user: rgb(140, 136, 126);
+      --text-user: rgb(255, 251, 240);
+      
+      /* 界面元素 */
+      --border-input: rgb(160, 160, 160);
+      --placeholder: rgb(100, 96, 86);
+      --btn-disabled: rgb(180, 176, 166);
+      --border-light: rgb(200, 196, 186);
+      --color-selected: rgb(100, 96, 86);
+      
+      /* 遮罩效果 */
+      --overlay-bg: rgba(25, 20, 16, 0.7);
+      --overlay-text-bg: rgba(25, 20, 16, 0.8);
+      --text-shadow: rgb(255, 251, 240);
+      
+      /* 繪圖工具 */
+      --pen-color-default: rgb(25, 20, 16);
+      --eraser-color: rgb(140, 136, 126);
+      --color-picker-bg: rgba(255, 251, 240, 0.95);
+      --color-border-transparent: rgba(25, 20, 16, 0.4);
+      
+      /* 繪圖顏色 */
+      --color-red: rgb(193, 44, 50);
+      --color-yellow: rgb(193, 147, 44);
+      --color-blue: rgb(67, 98, 197);
+      --color-white: rgb(25, 20, 16);
+      
+      /* 載入動畫 */
+      --spinner-border: rgb(200, 196, 186);
+      
+      /* 陰影效果 */
+      --shadow-light: rgba(25, 20, 16, 0.1);
+      --shadow-medium: rgba(25, 20, 16, 0.2);
+      --shadow-dark: rgba(25, 20, 16, 0.4);
+      --box-shadow-dark: rgba(25, 20, 16, 0.3);
+      --box-shadow-medium: rgba(25, 20, 16, 0.2);
+      --box-shadow-light: rgba(25, 20, 16, 0.1);
+      --box-shadow-strong: rgba(25, 20, 16, 0.4);
+      
+      /* 選中發光效果 */
+      --selected-glow: rgba(25, 20, 16, 0.8);
+      --selected-glow-light: rgba(25, 20, 16, 0.4);
+      --selected-glow-medium: rgba(25, 20, 16, 0.6);
+      --selected-glow-strong: rgba(25, 20, 16, 0.7);
+      
+      /* 強調色 */
+      --accent-green: #9ca3af;
+      --accent-hover: #6b7280;
+      
+      /* 亮色主題專用的 hover 顏色 */
+      --hover-color: #374151;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+
+    /* —— Header 與 Footer —— */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links > div { position: relative; padding: 0 1rem; cursor: pointer; color: var(--text-light); }
+    .nav-links > div::before,
+    .nav-links > div::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; height: 2px;
+      background: var(--text-light);
+      transform: scaleX(0);
+      transition: transform 0.15s ease;
+    }
+    .nav-links > div::before { top: -16px; }
+    .nav-links > div::after  { bottom: -16px; }
+    .nav-links > div:hover { color: var(--white); }
+    .nav-links > div:hover::before,
+    .nav-links > div:hover::after { transform: scaleX(1); }
+
+    /* 深色主題 hover 使用白色，亮色主題 hover 使用不同顏色 */
+    .theme-light .nav-links > div:hover,
+    .theme-pink .nav-links > div:hover,
+    .theme-sky .nav-links > div:hover {
+      color: var(--accent-green) !important;
+    }
+
+    /* 當前頁面狀態 */
+    .nav-current-page {
+      color: var(--white) !important;
+    }
+
+    .theme-light .nav-current-page,
+    .theme-pink .nav-current-page,
+    .theme-sky .nav-current-page {
+      color: var(--accent-green) !important;
+    }
+
+    .footer {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 1.14em;
+    }
+
+    /* —— 主內容區 —— */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+    .settings-center {
+      display: flex;
+      width: 100%;
+      max-width: 1600px;
+      gap: 0;
+      min-height: 100%;
+    }
+    .sidebar {
+      width: 240px;
+      background: var(--bg-secondary);
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-content {
+      background: var(--bg-secondary);
+      position: relative;
+    }
+    .sidebar h2 {
+      margin: 0;
+      font-size: 1.2em;
+      color: var(--text-light);
+      background: var(--bg-secondary);
+      padding: 16px;
+      font-weight: normal;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar h2:hover {
+      color: var(--white);
+    }
+    .sidebar h2.active {
+      background: var(--accent-green);
+      color: var(--black);
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background: var(--bg-secondary);
+    }
+    .sidebar li {
+      margin: 0;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 16px;
+      font-size: 1.2em;
+      transition: all 0.2s ease;
+      position: relative;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--bg-primary);
+    }
+    .sidebar li:hover {
+      color: var(--accent-green);
+    }
+    .sidebar li.active {
+      background: var(--accent-green);
+      color: var(--black);
+    }
+
+    .content {
+      flex: 1;
+      background: var(--bg-secondary);
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    /* 設定區塊樣式 */
+    .settings-section {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border-input);
+    }
+
+    .section-title {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: var(--text-light);
+      border-bottom: 2px solid var(--accent-green);
+      padding-bottom: 8px;
+    }
+
+    /* 個人資料樣式 */
+    .profile-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-input);
+    }
+
+    .profile-item:last-child {
+      border-bottom: none;
+    }
+
+    .profile-label {
+      font-size: 1.1em;
+      color: var(--text-light);
+      min-width: 100px;
+    }
+
+    .profile-value {
+      flex: 1;
+      margin: 0 16px;
+      color: var(--text-bot);
+    }
+
+    .profile-input {
+      flex: 1;
+      margin: 0 16px;
+      background: var(--bg-bot-input);
+      border: 1px solid var(--border-input);
+      border-radius: 4px;
+      padding: 8px 12px;
+      color: var(--text-bot);
+      font-size: 1em;
+    }
+
+    .profile-input::placeholder {
+      color: var(--placeholder);
+    }
+
+    .btn {
+      background: var(--accent-green);
+      color: #0d0d0f;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-secondary {
+      background: var(--bg-user);
+      color: var(--text-user);
+    }
+
+    .btn-secondary:hover {
+      background: #4a5568;
+    }
+
+    /* 主題選擇樣式 */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .theme-card {
+      background: var(--bg-bot-input);
+      border: 2px solid var(--border-input);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: var(--accent-green);
+      transform: translateY(-2px);
+    }
+
+    .theme-card.active {
+      border-color: var(--accent-green);
+      background: var(--bg-user);
+    }
+
+    .theme-name {
+      font-size: 1.1em;
+      margin-bottom: 12px;
+      color: var(--text-light);
+      text-align: center;
+    }
+
+    .theme-preview {
+      height: 80px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      background-image: url('https://fakeimg.ryd.tools/1440x1080');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .theme-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    /* 模態框樣式 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      border: 1px solid var(--border-input);
+    }
+
+    .modal-title {
+      font-size: 1.2em;
+      margin-bottom: 16px;
+      color: var(--text-light);
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-light);
+      font-size: 0.95em;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-bot-input);
+      border: 1px solid var(--border-input);
+      border-radius: 4px;
+      padding: 10px 12px;
+      color: var(--text-bot);
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .form-input::placeholder {
+      color: var(--placeholder);
+    }
+
+    /* 動畫 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal.show .modal-content {
+      animation: fadeIn 0.2s ease;
+    }
+
+    /* Toast 通知樣式 */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-green);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      min-width: 300px;
+      max-width: 400px;
+      pointer-events: auto;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast.hide {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    .toast-success {
+      border-left-color: #10b981;
+    }
+
+    .toast-error {
+      border-left-color: #ef4444;
+    }
+
+    .toast-warning {
+      border-left-color: #f59e0b;
+    }
+
+    .toast-info {
+      border-left-color: var(--accent-green);
+    }
+
+    .toast-preview {
+      border-left-color: var(--accent-green);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-bot-input) 100%);
+      border: 1px solid var(--accent-green);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--accent-green);
+    }
+
+    .toast-preview .toast-title {
+      color: var(--accent-green);
+    }
+
+    .toast-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.95em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 1.2em;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .toast-close:hover {
+      background: var(--bg-primary);
+    }
+
+    .toast-message {
+      font-size: 0.9em;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--accent-green);
+      transition: width linear;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .toast-success .toast-progress {
+      background: #10b981;
+    }
+
+    .toast-error .toast-progress {
+      background: #ef4444;
+    }
+
+    .toast-warning .toast-progress {
+      background: #f59e0b;
+    }
+
+    .toast-preview .toast-progress {
+      background: var(--accent-green);
+    }
+
+    /* Toast 圖標 */
+    .toast-icon {
+      font-size: 1.1em;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .settings-center {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+      }
+      
+      .theme-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .profile-value,
+      .profile-input {
+        margin: 0;
+        width: 100%;
+      }
+
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+      }
+
+      .toast {
+        min-width: auto;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <div>Logo</div>
+      <div class="nav-links">
+        <div>資料中心</div>
+        <div>商城</div>
+        <div>經驗值</div>
+        <div class="nav-current-page">設定</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="settings-center">
+      <!-- 左側選單 -->
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <ul id="sidebarMenu">
+            <li class="active" onclick="showSection(this, 'profile')">個人資料</li>
+            <li onclick="showSection(this, 'theme')">主題更換</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- 右側內容 -->
+      <section class="content">
+        <!-- 個人資料區塊 -->
+        <div id="profile-section" class="settings-section">
+          <h2 class="section-title">個人資料</h2>
+          
+          <div class="profile-item">
+            <span class="profile-label">姓名</span>
+            <span class="profile-value" id="userName">張小明</span>
+            <button class="btn" onclick="editProfile('name')">編輯</button>
+          </div>
+          
+          <div class="profile-item">
+            <span class="profile-label">郵箱</span>
+            <span class="profile-value" id="userEmail">user@example.com</span>
+            <button class="btn" onclick="editProfile('email')">編輯</button>
+          </div>
+          
+          <div class="profile-item">
+            <span class="profile-label">密碼</span>
+            <span class="profile-value">••••••••</span>
+            <button class="btn" onclick="changePassword()">更改密碼</button>
+          </div>
+          
+          <div style="text-align: center; margin-top: 24px;">
+            <button class="btn btn-danger" onclick="logout()">登出</button>
+          </div>
+        </div>
+
+        <!-- 主題更換區塊 -->
+        <div id="theme-section" class="settings-section" style="display: none;">
+          <h2 class="section-title">主題更換</h2>
+          
+          <div class="theme-grid">
+            <!-- 深色主題 -->
+            <div class="theme-card active" data-theme="dark" onclick="selectTheme(this, 'dark')">
+              <div class="theme-name">深色主題</div>
+              <div class="theme-preview"></div>
+              <div class="theme-actions">
+                <button class="btn btn-secondary" onclick="previewTheme('dark')">預覽</button>
+                <button class="btn" onclick="applyTheme('dark')">套用</button>
+              </div>
+            </div>
+            
+            <!-- 亮色主題 -->
+            <div class="theme-card" data-theme="light" onclick="selectTheme(this, 'light')">
+              <div class="theme-name">亮色主題</div>
+              <div class="theme-preview"></div>
+              <div class="theme-actions">
+                <button class="btn btn-secondary" onclick="previewTheme('light')">預覽</button>
+                <button class="btn" onclick="applyTheme('light')">套用</button>
+              </div>
+            </div>
+            
+            <!-- 深藍色主題 -->
+            <div class="theme-card" data-theme="blue" onclick="selectTheme(this, 'blue')">
+              <div class="theme-name">深藍色主題</div>
+              <div class="theme-preview"></div>
+              <div class="theme-actions">
+                <button class="btn btn-secondary" onclick="previewTheme('blue')">預覽</button>
+                <button class="btn" onclick="applyTheme('blue')">套用</button>
+              </div>
+            </div>
+            
+            <!-- 粉色主題 -->
+            <div class="theme-card" data-theme="pink" onclick="selectTheme(this, 'pink')">
+              <div class="theme-name">粉色主題</div>
+              <div class="theme-preview"></div>
+              <div class="theme-actions">
+                <button class="btn btn-secondary" onclick="previewTheme('pink')">預覽</button>
+                <button class="btn" onclick="applyTheme('pink')">套用</button>
+              </div>
+            </div>
+            
+            <!-- 天空藍主題 -->
+            <div class="theme-card" data-theme="sky" onclick="selectTheme(this, 'sky')">
+              <div class="theme-name">天空藍主題</div>
+              <div class="theme-preview"></div>
+              <div class="theme-actions">
+                <button class="btn btn-secondary" onclick="previewTheme('sky')">預覽</button>
+                <button class="btn" onclick="applyTheme('sky')">套用</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">客服信箱</footer>
+
+  <!-- Toast 容器 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 編輯個人資料模態框 -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="modalTitle">編輯個人資料</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" id="modalLabel">姓名</label>
+          <input type="text" class="form-input" id="modalInput" placeholder="請輸入新的姓名">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveProfile()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 更改密碼模態框 -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">更改密碼</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">目前密碼</label>
+          <input type="password" class="form-input" id="currentPassword" placeholder="請輸入目前密碼">
+        </div>
+        <div class="form-group">
+          <label class="form-label">新密碼</label>
+          <input type="password" class="form-input" id="newPassword" placeholder="請輸入新密碼">
+        </div>
+        <div class="form-group">
+          <label class="form-label">確認新密碼</label>
+          <input type="password" class="form-input" id="confirmPassword" placeholder="請再次輸入新密碼">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closePasswordModal()">取消</button>
+        <button class="btn" onclick="savePassword()">更改密碼</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentEditField = '';
+    let previewTimeout = null;
+    let currentTheme = 'dark';
+
+    // Toast 系統
+    class ToastManager {
+      constructor() {
+        this.container = document.getElementById('toastContainer');
+        this.toasts = [];
+      }
+
+      show(message, type = 'info', duration = 4000) {
+        const toast = this.createToast(message, type, duration);
+        
+        // 為預覽類型添加特殊樣式
+        if (type === 'preview') {
+          toast.classList.add('toast-preview');
+        }
+        
+        this.container.appendChild(toast);
+        this.toasts.push(toast);
+
+        // 觸發顯示動畫
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 10);
+
+        // 自動移除
+        if (duration > 0) {
+          setTimeout(() => {
+            this.remove(toast);
+          }, duration);
+        }
+
+        return toast;
+      }
+
+      createToast(message, type, duration) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const icons = {
+          success: '✓',
+          error: '✕',
+          warning: '⚠',
+          info: 'ℹ',
+          preview: '👁️'
+        };
+
+        const titles = {
+          success: '成功',
+          error: '錯誤',
+          warning: '警告',
+          info: '提示',
+          preview: '預覽中'
+        };
+
+        toast.innerHTML = `
+          <div class="toast-header">
+            <div class="toast-title">
+              <span class="toast-icon">${icons[type]}</span>
+              ${titles[type]}
+            </div>
+            <button class="toast-close" onclick="toastManager.remove(this.closest('.toast'))">&times;</button>
+          </div>
+          <div class="toast-message">${message}</div>
+          ${duration > 0 ? `<div class="toast-progress" style="width: 100%; animation: shrink ${duration}ms linear;"></div>` : ''}
+        `;
+
+        // 添加進度條動畫
+        if (duration > 0) {
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes shrink {
+              from { width: 100%; }
+              to { width: 0%; }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        return toast;
+      }
+
+      remove(toast) {
+        if (!toast || !toast.parentNode) return;
+
+        toast.classList.add('hide');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.remove();
+            this.toasts = this.toasts.filter(t => t !== toast);
+          }
+        }, 300);
+      }
+
+      success(message, duration = 4000) {
+        return this.show(message, 'success', duration);
+      }
+
+      error(message, duration = 5000) {
+        return this.show(message, 'error', duration);
+      }
+
+      warning(message, duration = 4500) {
+        return this.show(message, 'warning', duration);
+      }
+
+      info(message, duration = 4000) {
+        return this.show(message, 'info', duration);
+      }
+
+      preview(message, duration = 0) {
+        return this.show(message, 'preview', duration);
+      }
+    }
+
+    // 創建全域 toast 管理器
+    const toastManager = new ToastManager();
+
+    // 顯示不同設定區塊
+    function showSection(element, section) {
+      // 移除所有選單項目的 active 狀態
+      document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+      element.classList.add('active');
+
+      // 隱藏所有區塊
+      document.querySelectorAll('.settings-section').forEach(section => {
+        section.style.display = 'none';
+      });
+
+      // 顯示選中的區塊
+      if (section === 'profile') {
+        document.getElementById('profile-section').style.display = 'block';
+      } else if (section === 'theme') {
+        document.getElementById('theme-section').style.display = 'block';
+      }
+    }
+
+    // 編輯個人資料
+    function editProfile(field) {
+      currentEditField = field;
+      const modal = document.getElementById('editModal');
+      const title = document.getElementById('modalTitle');
+      const label = document.getElementById('modalLabel');
+      const input = document.getElementById('modalInput');
+
+      if (field === 'name') {
+        title.textContent = '編輯姓名';
+        label.textContent = '姓名';
+        input.placeholder = '請輸入新的姓名';
+        input.value = document.getElementById('userName').textContent;
+        input.type = 'text';
+      } else if (field === 'email') {
+        title.textContent = '編輯郵箱';
+        label.textContent = '郵箱';
+        input.placeholder = '請輸入新的郵箱地址';
+        input.value = document.getElementById('userEmail').textContent;
+        input.type = 'email';
+      }
+
+      modal.classList.add('show');
+    }
+
+    // 儲存個人資料
+    function saveProfile() {
+      const input = document.getElementById('modalInput');
+      const value = input.value.trim();
+
+      if (!value) {
+        toastManager.error('請輸入有效的內容');
+        return;
+      }
+
+      if (currentEditField === 'name') {
+        document.getElementById('userName').textContent = value;
+        toastManager.success('姓名已更新');
+      } else if (currentEditField === 'email') {
+        if (!isValidEmail(value)) {
+          toastManager.error('請輸入有效的郵箱地址');
+          return;
+        }
+        document.getElementById('userEmail').textContent = value;
+        toastManager.success('郵箱已更新');
+      }
+
+      closeModal();
+    }
+
+    // 驗證郵箱格式
+    function isValidEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    // 關閉編輯模態框
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('show');
+      document.getElementById('modalInput').value = '';
+    }
+
+    // 更改密碼
+    function changePassword() {
+      document.getElementById('passwordModal').classList.add('show');
+    }
+
+    // 儲存新密碼
+    function savePassword() {
+      const current = document.getElementById('currentPassword').value;
+      const newPwd = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (!current || !newPwd || !confirm) {
+        toastManager.warning('請填寫所有欄位');
+        return;
+      }
+
+      if (newPwd !== confirm) {
+        toastManager.error('新密碼與確認密碼不一致');
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        toastManager.error('密碼長度至少需要6個字符');
+        return;
+      }
+
+      // 模擬密碼更新
+      toastManager.success('密碼已成功更新');
+      closePasswordModal();
+    }
+
+    // 關閉密碼模態框
+    function closePasswordModal() {
+      document.getElementById('passwordModal').classList.remove('show');
+      document.getElementById('currentPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    }
+
+    // 登出
+    function logout() {
+      if (confirm('確定要登出嗎？')) {
+        toastManager.info('已登出，即將返回登入頁面');
+        // 這裡可以添加實際的登出邏輯
+        // setTimeout(() => {
+        //   window.location.href = 'login.html';
+        // }, 2000);
+      }
+    }
+
+    // 選擇主題
+    function selectTheme(element, theme) {
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      element.classList.add('active');
+    }
+
+    // 預覽主題
+    function previewTheme(theme) {
+      // 儲存當前主題
+      const originalTheme = currentTheme;
+      
+      // 清除之前的預覽
+      clearPreview();
+      
+      // 套用預覽主題
+      applyThemeClass(theme);
+      
+      // 使用 toast 顯示預覽信息
+      let countdown = 5;
+      const previewToast = toastManager.preview(
+        `正在預覽：${getThemeName(theme)}主題 - ${countdown}秒後自動恢復`
+      );
+      
+      // 每秒更新倒數
+      window.previewInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          const messageElement = previewToast.querySelector('.toast-message');
+          if (messageElement) {
+            messageElement.textContent = `正在預覽：${getThemeName(theme)}主題 - ${countdown}秒後自動恢復`;
+          }
+        }
+      }, 1000);
+      
+      // 5秒後恢復原主題
+      window.previewTimeout = setTimeout(() => {
+        clearPreview();
+        applyThemeClass(originalTheme);
+        toastManager.remove(previewToast);
+      }, 5000);
+      
+      // 儲存預覽 toast 引用
+      window.currentPreviewToast = previewToast;
+    }
+
+    // 清除預覽狀態
+    function clearPreview() {
+      // 清除定時器
+      if (window.previewTimeout) {
+        clearTimeout(window.previewTimeout);
+        window.previewTimeout = null;
+      }
+      if (window.previewInterval) {
+        clearInterval(window.previewInterval);
+        window.previewInterval = null;
+      }
+      
+      // 移除預覽 toast
+      if (window.currentPreviewToast) {
+        toastManager.remove(window.currentPreviewToast);
+        window.currentPreviewToast = null;
+      }
+    }
+
+    // 套用主題
+    function applyTheme(theme) {
+      // 清除預覽狀態
+      clearPreview();
+      
+      currentTheme = theme;
+      applyThemeClass(theme);
+      
+      // 儲存主題設定到 localStorage
+      localStorage.setItem('selectedTheme', theme);
+      
+      toastManager.success(`已套用${getThemeName(theme)}主題`);
+    }
+
+    // 套用主題類別
+    function applyThemeClass(theme) {
+      const body = document.body;
+      
+      // 移除所有主題類別
+      body.classList.remove('theme-blue', 'theme-pink', 'theme-sky', 'theme-light');
+      
+      // 套用新主題
+      if (theme !== 'dark') {
+        body.classList.add(`theme-${theme}`);
+      }
+    }
+
+    // 獲取主題名稱
+    function getThemeName(theme) {
+      const names = {
+        'dark': '深色',
+        'blue': '深藍色',
+        'pink': '粉色',
+        'sky': '天空藍',
+        'light': '亮色'
+      };
+      return names[theme] || '深色';
+    }
+
+    // 初始化頁面
+    function initializePage() {
+      // 從 localStorage 載入已儲存的主題
+      const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
+      currentTheme = savedTheme;
+      applyThemeClass(savedTheme);
+      
+      // 設定對應的主題卡片為選中狀態
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('active');
+        if (card.dataset.theme === savedTheme) {
+          card.classList.add('active');
+        }
+      });
+    }
+
+    // 點擊模態框外部關閉
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    document.getElementById('passwordModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePasswordModal();
+      }
+    });
+
+    // 頁面載入完成後初始化
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>

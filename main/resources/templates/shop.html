@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>會員首頁</title>
+  <style>
+    /* 來自 shop.html 的 CSS */
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --text-dark: #f0f0f0;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --accent-green: #61f6d6;
+      --accent-hover: #4fd1b1;
+      --white: #ffffff;
+      --black: #0d0d0f;
+      --nav-hover: #ffffff;
+      --sidebar-hover: #4fd1b1;
+      --card-bg: #2a2a2e;
+      --card-border: #3e3e42;
+      --message-success: #10b981;
+      --message-error: #ef4444;
+      --btn-primary-bg: #61f6d6;
+      --btn-primary-hover-bg: #4fd1b1;
+      --btn-danger-bg: #ef4444;
+      --btn-danger-hover-bg: #dc2626;
+      --btn-text-color: #0d0d0f;
+      --text-link: #61f6d6;
+    }
+
+    /* 來自 shop.html 的主題樣式 */
+    body.theme-blue, .theme-blue {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1e2a3a;
+      --text-light: #b8c5d1;
+      --text-dark: #d4e1ed;
+      --bg-bot-input: #2a3441;
+      --text-bot: #d4e1ed;
+      --bg-user: #3a4a5c;
+      --text-user: #e6f1ff;
+      --border-input: #34424f;
+      --placeholder: #6b7c8a;
+      --btn-disabled: #4a5866;
+      --white: #ffffff;
+      --black: #0f1419;
+      --accent-green: #4a9eff;
+      --accent-hover: #3a8eef;
+      --card-bg: #2a3441;
+      --card-border: #3a4a5c;
+      --inset-shadow-dark: rgba(0, 0, 0, 0.5);
+      --inset-shadow-light: rgba(255, 255, 255, 0.05);
+    }
+
+    body.theme-pink, .theme-pink {
+      --bg-primary: #fdf2f8;
+      --bg-secondary: #fce7f3;
+      --text-light: #881c4f;
+      --text-dark: #881c4f;
+      --white: #881c4f;
+      --black: #fdf2f8;
+      --bg-bot-input: #fbcfe8;
+      --text-bot: #881c4f;
+      --bg-user: #db2777;
+      --text-user: #fdf2f8;
+      --border-input: #be185d;
+      --placeholder: #9d174d;
+      --btn-disabled: #fbcfe8;
+      --accent-green: #ec4899;
+      --accent-hover: #db2777;
+      --card-bg: #ffffff;
+      --card-border: #fbcfe8;
+      --btn-text-color: #fdf2f8;
+      --inset-shadow-dark: rgba(136, 28, 79, 0.3);
+      --inset-shadow-light: rgba(255, 255, 255, 0.4);
+    }
+
+    body.theme-sky, .theme-sky {
+      --bg-primary: #f0f9ff;
+      --bg-secondary: #e0f2fe;
+      --text-light: #0c4a6e;
+      --text-dark: #0c4a6e;
+      --white: #0c4a6e;
+      --black: #f0f9ff;
+      --bg-bot-input: #bae6fd;
+      --text-bot: #0c4a6e;
+      --bg-user: #0ea5e9;
+      --text-user: #f0f9ff;
+      --border-input: #38bdf8;
+      --placeholder: #075985;
+      --btn-disabled: #bae6fd;
+      --accent-green: #0ea5e9;
+      --accent-hover: #0284c7;
+      --card-bg: #ffffff;
+      --card-border: #bae6fd;
+      --btn-text-color: #f0f9ff;
+      --inset-shadow-dark: rgba(12, 74, 110, 0.3);
+      --inset-shadow-light: rgba(255, 255, 255, 0.4);
+    }
+    
+    body.theme-light, .theme-light {
+      --bg-primary: rgb(237, 233, 223);
+      --bg-secondary: rgb(255, 251, 240);
+      --text-light: rgb(25, 20, 16);
+      --text-dark: rgb(25, 20, 16);
+      --white: rgb(25, 20, 16);
+      --black: rgb(255, 251, 240);
+      --bg-bot-input: rgb(225, 221, 211);
+      --text-bot: rgb(25, 20, 16);
+      --bg-user: rgb(140, 136, 126);
+      --text-user: rgb(255, 251, 240);
+      --border-input: rgb(160, 160, 160);
+      --placeholder: rgb(100, 96, 86);
+      --btn-disabled: rgb(180, 176, 166);
+      --accent-green: #9ca3af;
+      --accent-hover: #6b7280;
+      --card-bg: #ffffff;
+      --card-border: rgb(200, 196, 186);
+      --btn-text-color: rgb(255, 251, 240);
+      --inset-shadow-dark: rgba(25, 20, 16, 0.3);
+      --inset-shadow-light: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* 來自 welcome.html 的額外主題，已適應新的變數名稱 */
+    body.dark-theme, .theme-dark {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --text-light: #e0e0e0;
+      --text-dark: #f0f0f0;
+      --bg-bot-input: #2a2a2a;
+      --text-bot: #c0c0c0;
+      --bg-user: #3a3a3a;
+      --text-user: #f0f0f0;
+      --border-input: #4a4a4a;
+      --placeholder: #7a7a7a;
+      --btn-disabled: #5a5a5a;
+      --text-link: #8ab4f8;
+      --accent-green: #8ab4f8; /* 為求一致性，使用 accent */
+      --accent-hover: #6a9ee8;
+      --btn-primary-bg: #8ab4f8;
+      --btn-primary-hover-bg: #6a9ee8;
+      --btn-danger-bg: #cf6679;
+      --btn-danger-hover-bg: #a64f5e;
+      --btn-text-color: #121212;
+      --card-bg: #2a2a2a;
+      --card-border: #3a3a3a;
+      --message-success: #66bb6a;
+      --message-error: #ef5350;
+    }
+
+    body.green-theme, .theme-green {
+      --bg-primary: #e8f5e9;
+      --bg-secondary: #c8e6c9;
+      --text-light: #2e7d32;
+      --text-dark: #1b5e20;
+      --white: #1b5e20;
+      --black: #e8f5e9;
+      --bg-bot-input: #a5d6a7;
+      --text-bot: #1b5e20;
+      --bg-user: #81c784;
+      --text-user: #ffffff;
+      --border-input: #4caf50;
+      --placeholder: #66bb6a;
+      --btn-disabled: #a5d6a7;
+      --accent-green: #4caf50;
+      --accent-hover: #388e3c;
+      --text-link: #388e3c;
+      --btn-primary-bg: #4caf50;
+      --btn-primary-hover-bg: #388e3c;
+      --btn-text-color: white;
+      --card-bg: #ffffff;
+      --card-border: #81c784;
+    }
+
+    body.purple-theme, .theme-purple {
+      --bg-primary: #f3e5f5;
+      --bg-secondary: #e1bee7;
+      --text-light: #4a148c;
+      --text-dark: #311b92;
+      --white: #311b92;
+      --black: #f3e5f5;
+      --bg-bot-input: #ce93d8;
+      --text-bot: #4a148c;
+      --bg-user: #ba68c8;
+      --text-user: #ffffff;
+      --border-input: #9c27b0;
+      --placeholder: #7b1fa2;
+      --btn-disabled: #ce93d8;
+      --accent-green: #9c27b0;
+      --accent-hover: #7b1fa2;
+      --text-link: #673ab7;
+      --btn-text-color: white;
+      --card-bg: #ffffff;
+      --card-border: #ba68c8;
+    }
+
+    body.gold-theme, .theme-gold {
+      --bg-primary: #fffde7;
+      --bg-secondary: #fff59d;
+      --text-light: #424242;
+      --text-dark: #212121;
+      --white: #212121;
+      --black: #fffde7;
+      --bg-bot-input: #ffe082;
+      --text-bot: #424242;
+      --bg-user: #ffd54f;
+      --text-user: #212121;
+      --border-input: #ffca28;
+      --placeholder: #ffc107;
+      --btn-disabled: #ffe082;
+      --accent-green: #ffc107;
+      --accent-hover: #ffa000;
+      --text-link: #ff8f00;
+      --btn-text-color: black;
+      --card-bg: #ffffff;
+      --card-border: #ffd54f;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+
+    /* 來自 shop.html 的通用佈局和導航欄 */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+    .navbar-container h2 {
+        margin: 0;
+        font-size: 1.2em;
+        color: var(--text-dark);
+    }
+    .nav-actions { display: flex; gap: 15px; align-items: center; }
+
+    /* Copied from shop.html for header animation */
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+    .nav-links > div { 
+      position: relative; 
+      padding: 0 1rem; 
+      cursor: pointer; 
+      color: var(--text-light);
+      transition: color 0.2s ease;
+    }
+    .nav-links > div::before,
+    .nav-links > div::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; height: 2px;
+      background: var(--text-light);
+      transform: scaleX(0);
+      transition: transform 0.15s ease;
+    }
+    .nav-links > div::before { top: -16px; }
+    .nav-links > div::after  { bottom: -16px; }
+    .nav-links > div:hover { color: var(--white); }
+    .nav-links > div:hover::before,
+    .nav-links > div:hover::after { transform: scaleX(1); }
+
+    .nav-current-page {
+      color: var(--white) !important;
+    }
+
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 1600px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* 商店容器和卡片 */
+    .shop-container {
+      position: relative;
+      width: 100%;
+    }
+    .shop-section {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 24px;
+      border: 1px solid var(--border-input);
+      position: relative;
+      overflow: visible;
+      clip-path: polygon(0% 0%, calc(100% - 180px) 0%, calc(100% - 180px) 70px, 100% 70px, 100% 100%, 0% 100%);
+    }
+    .shop-section::after { display: none; }
+    .shop-header {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      background: transparent;
+      padding: 0;
+      z-index: 2;
+      overflow: visible;
+    }
+    .section-title {
+      font-size: 1.8em;
+      margin: 0;
+      color: var(--text-dark);
+      border-bottom: 2px solid var(--accent-green);
+      padding-bottom: 8px;
+      flex: 1;
+      margin-right: 200px;
+      position: relative;
+      z-index: 3;
+    }
+    .exp-display {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 180px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.1em;
+      color: var(--accent-green);
+      font-weight: bold;
+      background: var(--bg-primary);
+      border-bottom-left-radius: 12px;
+      border-left: 1px solid var(--border-input);
+      border-bottom: 1px solid var(--border-input);
+      z-index: 10;
+      box-shadow: inset 2px 2px 6px var(--inset-shadow-dark, rgba(0, 0, 0, 0.3)), inset -2px -2px 6px var(--inset-shadow-light, rgba(255, 255, 255, 0.02)), -2px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .exp-display span {
+      color: var(--accent-green);
+      font-weight: bold;
+    }
+    .exp-display svg { flex-shrink: 0; }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      color: var(--btn-text-color);
+    }
+    .btn-primary {
+        background-color: var(--btn-primary-bg);
+    }
+    .btn-primary:hover:not(:disabled) {
+        background-color: var(--btn-primary-hover-bg);
+    }
+    .btn-danger {
+        background: var(--btn-danger-bg);
+        color: var(--btn-text-color);
+    }
+    .btn-danger:hover {
+        background: var(--btn-danger-hover-bg);
+    }
+    .btn-secondary {
+      background: var(--bg-user);
+      color: var(--text-user);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #4a5568;
+    }
+    .btn:disabled {
+        background-color: var(--btn-disabled);
+        cursor: not-allowed;
+        color: var(--text-light);
+    }
+
+    /* 頁籤導航 */
+    .tab-navigation {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 24px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-light);
+      font-size: 1em;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .tab-btn:hover {
+      background: var(--bg-bot-input);
+      color: var(--text-dark);
+    }
+    .tab-btn.active {
+      background: var(--accent-green);
+      color: var(--black);
+      font-weight: bold;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 320px);
+      gap: 24px;
+      margin-top: 16px;
+      justify-content: center;
+      padding: 0 12px;
+    }
+    .theme-card {
+      background: var(--bg-bot-input);
+      border: 2px solid var(--border-input);
+      border-radius: 12px;
+      padding: 0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      width: 320px;
+      height: 420px;
+    }
+    .theme-card.purchased:not(.active):hover {
+        cursor: pointer;
+        border-color: var(--accent-hover);
+    }
+    .theme-card:hover:not(.purchased) {
+      border-color: var(--accent-green);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .theme-card.active {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 15px var(--accent-green);
+    }
+    .theme-preview {
+      height: 160px;
+      background-image: url('https://fakeimg.ryd.tools/1440x1080');
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    .theme-info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .theme-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--text-dark);
+      margin: 0;
+      text-align: center;
+    }
+    .theme-price {
+      font-weight: bold;
+      color: var(--accent-green);
+      font-size: 1.1em;
+      text-align: center;
+      margin: 4px 0 0 0;
+    }
+    .theme-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    /* Toast 通知 */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-green);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      min-width: 300px;
+      max-width: 400px;
+      pointer-events: auto;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .toast.hide {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    .toast-success { border-left-color: var(--message-success); }
+    .toast-error { border-left-color: var(--message-error); }
+    .toast-preview {
+      border-left-color: var(--accent-green);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-bot-input) 100%);
+      border: 1px solid var(--accent-green);
+    }
+    .toast-preview .toast-title { color: var(--accent-green); }
+    .toast-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    .toast-close {
+      background: none; border: none; color: var(--text-light); cursor: pointer;
+      font-size: 1.2em; padding: 0; width: 20px; height: 20px; display: flex;
+      align-items: center; justify-content: center; border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+    .toast-close:hover { background: var(--bg-primary); }
+    .toast-message { font-size: 0.9em; opacity: 0.9; line-height: 1.4; }
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-green);
+      width: 100%; animation-timing-function: linear;
+    }
+    @keyframes shrink { from { width: 100%; } to { width: 0%; } }
+    .toast-success .toast-progress { background: var(--message-success); }
+    .toast-error .toast-progress { background: var(--message-error); }
+    .toast-preview .toast-progress { background: var(--accent-green); }
+
+    /* 頁尾 */
+    .footer {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 1.14em;
+    }
+    
+    /* === 新增：設定彈窗 (Modal) 的樣式 === */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: none; /* 預設隱藏 */
+        justify-content: center;
+        align-items: center;
+        z-index: 20000;
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        background-color: var(--bg-secondary);
+        padding: 25px 30px;
+        border-radius: 12px;
+        border: 1px solid var(--border-input);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 450px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-input);
+        padding-bottom: 15px;
+    }
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.5em;
+        color: var(--text-dark);
+    }
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 2em;
+        color: var(--text-light);
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+    .close-btn:hover {
+        color: var(--white);
+    }
+    .modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+    .modal-setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+    .modal-setting-item label, .modal-setting-item a {
+        font-size: 1.1em;
+        color: var(--text-light);
+        text-decoration: none;
+    }
+     .modal-setting-item a:hover {
+        color: var(--text-link);
+     }
+    .modal-setting-item select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-input);
+        border-radius: 6px;
+        background-color: var(--bg-primary);
+        color: var(--text-light);
+        font-size: 1em;
+    }
+    .modal-setting-item .btn {
+      width: 120px; /* 統一按鈕寬度 */
+      text-align: center;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .navbar-container { flex-direction: column; gap: 15px; }
+      .theme-grid {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 0 12px;
+      }
+      .theme-card {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        min-height: 380px;
+      }
+      .toast-container { top: 10px; right: 10px; left: 10px; }
+      .toast { min-width: auto; max-width: none; }
+      .shop-header {
+        flex-direction: column; align-items: flex-start; gap: 16px; position: relative;
+        padding: 16px; background: transparent;
+      }
+      .section-title {
+        text-align: center; align-self: stretch; margin-right: 0; margin-bottom: 8px;
+      }
+      .shop-section { clip-path: none; border-radius: 8px; }
+      .exp-display {
+        position: relative; top: 0; right: 0; width: auto; height: auto; align-self: center;
+        font-size: 1em; padding: 12px 20px; border: 1px solid var(--border-input);
+        border-radius: 8px; margin-top: -8px;
+        box-shadow: inset 2px 2px 6px var(--inset-shadow-dark, rgba(0, 0, 0, 0.3)), inset -2px -2px 6px var(--inset-shadow-light, rgba(255, 255, 255, 0.02)), 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+      .tab-navigation { flex-direction: column; gap: 4px; }
+      .tab-btn { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+        <div>Logo</div>
+        <div class="nav-links">
+            <div>聊天中心</div>
+            <div>商店</div>
+            <div>經驗值</div>
+            <div id="settings-btn" >設定</div>
+        </div>
+    </div>
+</header>
+
+  <main>
+    <div class="content">
+      <div class="shop-container">
+        <div class="exp-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="var(--accent-green)" stroke-width="2" fill="none"/>
+            <path d="M12 2L14.09 8.26L20 8.26L15.45 11.74L17.55 18L12 14.74L6.45 18L8.55 11.74L4 8.26H9.91L12 2Z" fill="var(--accent-green)" stroke="var(--accent-green)" stroke-width="0.5"/>
+          </svg>
+          <span>經驗值：<span id="userCoinDisplay" th:text="${userCoin}"></span></span>
+        </div>
+        
+        <div class="shop-section">
+          <div class="shop-header">
+            <h2 class="section-title">主題商店</h2>
+          </div>
+
+          <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="all-themes" onclick="switchTab(this, 'all-themes')">全部主題</button>
+            <button class="tab-btn" data-tab="dark-themes" onclick="switchTab(this, 'dark-themes')">深色主題</button>
+            <button class="tab-btn" data-tab="light-themes" onclick="switchTab(this, 'light-themes')">淺色主題</button>
+          </div>
+
+          <div class="tab-content active" id="all-themes">
+            <div class="theme-grid">
+              <div class="theme-card" th:each="theme : ${allThemes}" th:data-theme="${theme.themeName}" th:classappend="${#lists.contains(availableThemes, theme.themeName)} ? 'purchased' : ''">
+                <div class="theme-preview"></div>
+                <div class="theme-info">
+                  <div class="theme-name" th:text="${theme.displayName}">主題名稱</div>
+                  
+                  <div class="theme-price" th:if="${theme.price > 0}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                        <circle cx="12" cy="12" r="10" stroke="var(--accent-green)" stroke-width="2" fill="none"/>
+                        <path d="M12 2L14.09 8.26L20 8.26L15.45 11.74L17.55 18L12 14.74L6.45 18L8.55 11.74L4 8.26H9.91L12 2Z" fill="var(--accent-green)" stroke="var(--accent-green)" stroke-width="0.5"/>
+                    </svg>
+                    <span th:text="${theme.price}"></span> 經驗值
+                  </div>
+                  <div class="theme-price" th:if="${theme.price == 0}">✔ 免費主題</div>
+                  <div class="theme-actions">
+                    <button class="btn btn-secondary preview-btn" th:data-theme-name="${theme.themeName}">預覽</button>
+                    <button class="btn btn-primary buy-theme-btn" th:data-theme-name="${theme.themeName}" th:data-theme-price="${theme.price}">購買</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tab-content" id="dark-themes">
+            <div class="theme-grid">
+                <div th:each="theme : ${allThemes}" th:if="${#lists.contains({'dark', 'blue'}, theme.themeName)}">
+                    <div class="theme-card" th:data-theme="${theme.themeName}" th:classappend="${#lists.contains(availableThemes, theme.themeName)} ? 'purchased' : ''">
+                        <div class="theme-preview"></div>
+                        <div class="theme-info">
+                          <div class="theme-name" th:text="${theme.displayName}">主題名稱</div>
+                          
+                          <div class="theme-price" th:if="${theme.price > 0}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                <circle cx="12" cy="12" r="10" stroke="var(--accent-green)" stroke-width="2" fill="none"/>
+                                <path d="M12 2L14.09 8.26L20 8.26L15.45 11.74L17.55 18L12 14.74L6.45 18L8.55 11.74L4 8.26H9.91L12 2Z" fill="var(--accent-green)" stroke="var(--accent-green)" stroke-width="0.5"/>
+                            </svg>
+                            <span th:text="${theme.price}"></span> 經驗值
+                          </div>
+                          <div class="theme-price" th:if="${theme.price == 0}">✔ 免費主題</div>
+                          <div class="theme-actions">
+                            <button class="btn btn-secondary preview-btn" th:data-theme-name="${theme.themeName}">預覽</button>
+                            <button class="btn btn-primary buy-theme-btn" th:data-theme-name="${theme.themeName}" th:data-theme-price="${theme.price}">購買</button>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="light-themes">
+            <div class="theme-grid">
+                <div th:each="theme : ${allThemes}" th:if="${#lists.contains({'light', 'pink', 'sky', 'green', 'purple', 'gold'}, theme.themeName)}">
+                    <div class="theme-card" th:data-theme="${theme.themeName}" th:classappend="${#lists.contains(availableThemes, theme.themeName)} ? 'purchased' : ''">
+                        <div class="theme-preview"></div>
+                        <div class="theme-info">
+                          <div class="theme-name" th:text="${theme.displayName}">主題名稱</div>
+                          
+                          <div class="theme-price" th:if="${theme.price > 0}">
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                <circle cx="12" cy="12" r="10" stroke="var(--accent-green)" stroke-width="2" fill="none"/>
+                                <path d="M12 2L14.09 8.26L20 8.26L15.45 11.74L17.55 18L12 14.74L6.45 18L8.55 11.74L4 8.26H9.91L12 2Z" fill="var(--accent-green)" stroke="var(--accent-green)" stroke-width="0.5"/>
+                            </svg>
+                            <span th:text="${theme.price}"></span> 經驗值
+                          </div>
+                          <div class="theme-price" th:if="${theme.price == 0}">✔ 免費主題</div>
+                          <div class="theme-actions">
+                            <button class="btn btn-secondary preview-btn" th:data-theme-name="${theme.themeName}">預覽</button>
+                            <button class="btn btn-primary buy-theme-btn" th:data-theme-name="${theme.themeName}" th:data-theme-price="${theme.price}">購買</button>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>設定</h2>
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-setting-item">
+          <label for="themeSelector">當前主題：</label>
+          <select id="themeSelector">
+            <option th:each="themeName : ${availableThemes}"
+                    th:value="${themeName}"
+                    th:text="${#strings.capitalize(themeName)}"
+                    th:selected="${themeName == currentTheme}">
+            </option>
+          </select>
+        </div>
+        <div class="modal-setting-item">
+            <form th:action="@{/change-password}" method="get" style="margin: 0;">
+                <button type="submit" class="btn btn-secondary">修改密碼</button>
+            </form>
+        </div>
+        <div class="modal-setting-item">
+            <form th:action="@{/logout}" method="get" style="margin: 0;">
+                <button type="submit" class="btn btn-secondary">登出</button>
+            </form>
+        </div>
+        <div class="modal-setting-item">
+            <form th:action="@{/delete-account}" method="post" onsubmit="return confirm('確定要刪除帳號嗎？此操作無法復原！');" style="margin: 0;">
+                <button type="submit" class="btn btn-danger">刪除帳號</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    客服信箱
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script th:inline="javascript">
+    /* 來自兩個檔案的合併與改寫腳本 */
+
+    // 全域狀態變數
+    let previewTimeout = null;
+    let currentTheme = 'dark'; // 這個值將會由選擇器更新
+    const userCoinDisplay = document.getElementById('userCoinDisplay');
+    const themeSelector = document.getElementById('themeSelector');
+    const body = document.body;
+
+    // --- 來自 shop.html 的 Toast 通知系統 ---
+    class ToastManager {
+      constructor() {
+        this.container = document.getElementById('toastContainer');
+      }
+      show(message, type = 'info', duration = 4000) {
+        const toast = this.createToast(message, type, duration);
+        this.container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        if (duration > 0) {
+          const progress = toast.querySelector('.toast-progress');
+          if(progress) progress.style.animation = `shrink ${duration}ms linear`;
+          setTimeout(() => this.remove(toast), duration);
+        }
+        return toast;
+      }
+      createToast(message, type, duration) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const titles = { success: '成功', error: '錯誤', preview: '預覽中' };
+        toast.innerHTML = `
+          <div class="toast-header">
+            <div class="toast-title">${titles[type] || '通知'}</div>
+            <button class="toast-close" onclick="toastManager.remove(this.closest('.toast'))">&times;</button>
+          </div>
+          <div class="toast-message">${message}</div>
+          ${duration > 0 ? `<div class="toast-progress"></div>` : ''}
+        `;
+        return toast;
+      }
+      remove(toast) {
+        if (!toast || !toast.parentNode) return;
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+      }
+      success(msg, dur=4000) { this.show(msg, 'success', dur); }
+      error(msg, dur=5000) { this.show(msg, 'error', dur); }
+      preview(msg, dur=5000) { return this.show(msg, 'preview', dur); }
+    }
+    const toastManager = new ToastManager();
+
+    // --- 核心功能函式 ---
+
+    function applyTheme(themeName) {
+        body.className = ''; // 清除所有 class
+        if (themeName && themeName !== 'default' && themeName !== 'dark') {
+            body.classList.add(`theme-${themeName}`);
+        }
+        // 'dark' 是根樣式，除非您有特定的 `theme-dark`，否則不需要 class
+        if (themeName === 'dark') {
+            body.classList.add('dark-theme'); // 為求清晰，使用明確的 class
+        }
+        currentTheme = themeName;
+        updateActiveCardState();
+    }
+
+    // 更新所有卡片視覺狀態的函式
+    function updateCardStates() {
+        const userCoin = parseInt(userCoinDisplay?.textContent || '0');
+        const currentSelectedTheme = themeSelector.value;
+        const availableThemes = Array.from(themeSelector.options).map(opt => opt.value);
+
+        document.querySelectorAll('.theme-card').forEach(card => {
+            const themeName = card.dataset.theme;
+            const price = parseInt(card.querySelector('.buy-theme-btn').dataset.themePrice);
+            const buyButton = card.querySelector('.buy-theme-btn');
+            const hasPurchased = availableThemes.includes(themeName);
+            
+            card.classList.toggle('purchased', hasPurchased);
+
+            if (hasPurchased) {
+                buyButton.disabled = true;
+                if (themeName === currentSelectedTheme) {
+                    buyButton.innerHTML = `✔ 已啟用`;
+                } else {
+                    buyButton.innerHTML = `已擁有`;
+                }
+            } else {
+                if (userCoin < price) {
+                    buyButton.disabled = true;
+                    buyButton.innerHTML = `經驗不足`;
+                } else {
+                    buyButton.disabled = false;
+                    buyButton.innerHTML = `🛒 購買`;
+                }
+            }
+        });
+        updateActiveCardState();
+    }
+    
+    function updateActiveCardState() {
+        const currentSelectedTheme = themeSelector.value;
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.theme === currentSelectedTheme);
+        });
+    }
+
+    function addThemeToSelector(themeName) {
+        if (!Array.from(themeSelector.options).some(opt => opt.value === themeName)) {
+            const newOption = document.createElement('option');
+            newOption.value = themeName;
+            newOption.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1);
+            themeSelector.appendChild(newOption);
+        }
+    }
+
+    // --- 事件處理函式 ---
+
+    function handleThemeSelectionChange() {
+        const selectedTheme = themeSelector.value;
+        applyTheme(selectedTheme);
+        localStorage.setItem('selectedTheme', selectedTheme);
+        updateCardStates();
+
+        fetch('/saveTheme', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+            body: JSON.stringify({ theme: selectedTheme }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('主題已儲存:', data.message);
+                toastManager.success(`已切換至 ${selectedTheme} 主題`, 2000);
+            } else {
+                toastManager.error(data.message || '儲存主題失敗');
+            }
+        })
+        .catch(error => {
+            console.error('儲存主題時發生錯誤:', error);
+            toastManager.error('儲存主題時發生錯誤');
+        });
+    }
+
+    function handleBuyTheme(event) {
+        const button = event.target.closest('.buy-theme-btn');
+        if (!button || button.disabled) return;
+        
+        const themeName = button.dataset.themeName;
+        const themePrice = parseInt(button.dataset.themePrice);
+        const themeDisplayName = button.closest('.theme-card').querySelector('.theme-name').textContent;
+        
+        if (!confirm(`確定要花費 ${themePrice} 經驗值購買 "${themeDisplayName}" 主題嗎？`)) return;
+
+        fetch('/buyTheme', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+            body: JSON.stringify({ theme: themeName }),
+        })
+        .then(response => {
+            if (!response.ok) return response.json().then(err => { throw new Error(err.message || '購買失敗'); });
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                toastManager.success(data.message);
+                userCoinDisplay.textContent = data.newCoin;
+                addThemeToSelector(themeName);
+                themeSelector.value = themeName; // 自動選擇新主題
+                handleThemeSelectionChange(); // 套用並儲存新主題
+            } else {
+                toastManager.error(data.message || '購買失敗');
+            }
+        })
+        .catch(error => {
+            console.error('購買失敗:', error);
+            toastManager.error(error.message || '購買時發生未知錯誤');
+        });
+    }
+    
+    function handlePreviewTheme(event) {
+        const button = event.target.closest('.preview-btn');
+        if (!button) return;
+        const themeName = button.dataset.themeName;
+        
+        const originalTheme = themeSelector.value;
+        clearPreview(); // 清除任何現有的預覽
+        
+        body.className = '';
+        body.classList.add(`theme-${themeName}`);
+
+        const toast = toastManager.preview(`預覽 ${themeName} 主題中... 5秒後恢復`, 5000);
+
+        previewTimeout = setTimeout(() => {
+            applyTheme(originalTheme);
+            previewTimeout = null;
+        }, 5000);
+    }
+    
+    function clearPreview() {
+        if(previewTimeout) {
+            clearTimeout(previewTimeout);
+            previewTimeout = null;
+        }
+    }
+    
+    function handleCardClick(event) {
+        const card = event.target.closest('.theme-card.purchased');
+        if (!card) return;
+        
+        const themeName = card.dataset.theme;
+        if(themeSelector.value !== themeName){
+            themeSelector.value = themeName;
+            handleThemeSelectionChange();
+        }
+    }
+
+    function switchTab(button, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      button.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // --- 初始化 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // === 新增：設定彈窗 (Modal) 的邏輯 ===
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.style.display = 'flex';
+            });
+        }
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                settingsModal.style.display = 'none';
+            });
+        }
+        if (settingsModal) {
+            // 點擊彈窗外部區域時關閉彈窗
+            settingsModal.addEventListener('click', (event) => {
+                if (event.target === settingsModal) {
+                    settingsModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // 初始主題設定
+        const initialTheme = themeSelector.value || 'dark';
+        applyTheme(initialTheme);
+        updateCardStates();
+
+        // 新增事件監聽器
+        themeSelector.addEventListener('change', handleThemeSelectionChange);
+
+        // 對動態生成的元素使用事件委派
+        document.querySelector('.content').addEventListener('click', function(event) {
+            handleBuyTheme(event);
+            handlePreviewTheme(event);
+            handleCardClick(event);
+        });
+    });
+  </script>
+</body>
+</html>

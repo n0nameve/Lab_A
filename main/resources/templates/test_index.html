@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>未登入首頁</title>
+  <style>
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --input-glow: #61f6d6; /* Added for consistency, if needed */
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-light);
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+    .navbar {
+      background: var(--bg-secondary);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    main {
+      position: relative;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .hero-btn {
+      min-width: 240px;
+      padding: 18px 56px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      border: none;
+      color: var(--text-light);
+      background: var(--bg-secondary);
+      box-shadow: 0 2px 12px rgba(0,0,0,.13), 0 1.5px 4px rgba(0,0,0,.10);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 8px;
+    }
+    .hero-btn:hover {
+      background: var(--bg-user);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,.2), 0 2px 6px rgba(0,0,0,.15);
+    }
+    .hero-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    /* 按鈕點擊動畫 */
+    .hero-btn.clicked {
+      animation: buttonClickAndDisappear 0.15s ease-out forwards;
+    }
+    @keyframes buttonClickAndDisappear {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      40% {
+        transform: scale(0.88);
+        background: #525257;
+        box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      }
+      100% {
+        transform: scale(0.6);
+        opacity: 0;
+      }
+    }
+    .login-panel {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform-origin: center center;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  opacity 0.4s ease;
+      opacity: 0;
+      pointer-events: none;
+      width: 300px;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      text-align: center;
+    }
+    .login-panel.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+      animation: panelBounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+    }
+    @keyframes panelBounceIn {
+      0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(0.95);
+      }
+      85% {
+        transform: translate(-50%, -50%) scale(1.02);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    /* 3D 翻頁動畫效果 */
+.login-panel.animating-out {
+  opacity: 0;
+  transform:
+    translate(-50%, -50%)
+    rotateY(-180deg)
+    scale(0)
+    translateZ(-80px)
+    translateX(-25px);
+  box-shadow: 0 12px 48px rgba(0,0,0,.6);
+  filter: brightness(1.2) contrast(1.1) saturate(1.2);
+  pointer-events: none;
+}
+    .login-panel.animating-in {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotateY(180deg) scale(0.75) translateZ(-80px) translateX(25px);
+      box-shadow: 0 12px 48px rgba(0,0,0,.6);
+      filter: brightness(1.2) contrast(1.1) saturate(1.2);
+      pointer-events: none;
+    }
+    .login-panel.animated-in {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotateY(0deg) scale(1) translateZ(0);
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      filter: brightness(1) contrast(1) saturate(1);
+      pointer-events: auto;
+      transition: transform .5s cubic-bezier(.175,.885,.32,1.6),
+                  box-shadow .5s cubic-bezier(.175,.885,.32,1.6),
+                  filter .5s ease,
+                  opacity .3s ease;
+    }
+    .login-panel h2 {
+      margin-bottom: 16px;
+    }
+    .login-panel .email-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin: 8px 0; /* Adjust margin if needed */
+      transition: transform 0.1s ease;
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .login-panel .email-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .login-panel .email-btn:active {
+      transform: scale(0.95);
+    }
+    .login-panel .email-btn img {
+      width: 48px;
+      height: 48px;
+    }
+    .login-panel .divider {
+      height: 1px;
+      background: var(--text-light);
+      margin: 16px 0;
+    }
+    .login-panel p {
+      margin: 8px 0;
+    }
+    .login-panel .signup-text a {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .login-panel .signup-text a:hover {
+      color: #61f6d6;
+      text-decoration: underline;
+    }
+    .footer {
+      background: var(--bg-secondary);
+      padding: 18px 0;
+    }
+    .footer-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1.14em;
+    }
+
+
+    @media(max-width:600px) {
+      .hero-btn { width: 80%; }
+      .login-panel { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">Logo</div>
+  </header>
+  <main>
+    <button class="hero-btn" id="heroBtn">開始學習</button>
+    <div class="login-panel" id="loginPanel" aria-hidden="true">
+      <h2>登入</h2>
+      
+<div id="g_id_onload"
+     data-client_id="66087248968-6h4ahpd26h2hofimaub8hd45l8svg8um.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+</div>
+<!-- 只留一个空的 div，让 GSI 脚本替你生成按钮 -->
+<div class="g_id_signin"
+     data-type="icon"
+     data-size="large"
+     data-ux_mode="popup">
+</div>
+
+      <div class="divider"></div>
+      <p>或是使用</p>
+      <button class="email-btn" id="emailBtn" aria-label="Email 登入">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Aiga_mail_white.svg" alt="Email">
+      </button>
+      <p class="signup-text"><a href="#" id="signupLink">還沒有帳戶？</a></p>
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="footer-container">客服信箱</div>
+  </footer>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    // Google 登入回調函式
+    function handleCredentialResponse(response) {
+        const id_token = response.credential;
+        fetch("/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: id_token })
+        }).then(res => {
+            if (res.redirected) {
+                window.location.href = res.url;
+            } else {
+                // 如果後端沒有重新導向，且沒有明確錯誤，彈出提示
+                alert("Google 登入失敗，請稍後再試！");
+            }
+        }).catch(err => {
+            console.error("Fetch 錯誤:", err);
+            alert("登入請求發生錯誤！");
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const heroBtn = document.getElementById('heroBtn');
+      const loginPanel = document.getElementById('loginPanel');
+      const emailBtn = document.getElementById('emailBtn');
+      const signupLink = document.getElementById('signupLink');
+
+      // 開始學習按鈕點擊
+      heroBtn.addEventListener('click', () => {
+        if (heroBtn.classList.contains('clicked')) return;
+        heroBtn.classList.add('clicked');
+        setTimeout(() => {
+          heroBtn.style.pointerEvents = 'none';
+          loginPanel.classList.add('show');
+        }, 120);
+      });
+
+      // Email 登入 – 3D 翻頁跳轉
+      emailBtn.addEventListener('click', () => {
+        emailBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => emailBtn.style.transform = '', 120);
+        heroBtn.style.opacity = '0';
+        heroBtn.style.pointerEvents = 'none';
+        loginPanel.classList.remove('show');
+        loginPanel.classList.add('animating-out');
+        setTimeout(() => {
+          window.location.href = '/login'; // 跳轉到登入頁面
+        }, 600);
+      });
+
+      // 註冊連結 – 3D 翻頁跳轉
+      signupLink.addEventListener('click', e => {
+        e.preventDefault();
+        heroBtn.style.opacity = '0';
+        heroBtn.style.pointerEvents = 'none';
+        loginPanel.classList.remove('show');
+        loginPanel.classList.add('animating-out');
+        setTimeout(() => {
+          window.location.href = '/register'; // 跳轉到註冊頁面
+        }, 600);
+      });
+
+      // URL 參數自動打開登入面板
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('action') === 'login') {
+        loginPanel.classList.add('show');
+        heroBtn.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

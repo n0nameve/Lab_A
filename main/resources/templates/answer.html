@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>解答頁面</title>
+  <style>
+    /* 從 data-center.html 複製的根變數 */
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #1a1a1c;
+      --text-light: #c3c3c3;
+      --bg-bot-input: #2a2a2e;
+      --text-bot: #e5e7eb;
+      --bg-user: #3e3e42;
+      --text-user: #f3f4f6;
+      --border-input: #2c2c2e;
+      --placeholder: #6b7280;
+      --btn-disabled: #4b5563;
+      --accent-green: #61f6d6;
+      --accent-hover: #4fd1b1;
+      --white: #ffffff;
+      --black: #0d0d0f;
+      --nav-hover: #ffffff;
+      --sidebar-hover: #4fd1b1;
+      --box-shadow-dark: rgba(0, 0, 0, 0.18);
+      --box-shadow-medium: rgba(0, 0, 0, 0.13);
+      --box-shadow-light: rgba(0, 0, 0, 0.10);
+      --box-shadow-strong: rgba(0, 0, 0, 0.17);
+    }
+
+    /* 主題變數 - 深藍色主題 */
+    .theme-blue {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1e2a3a;
+      --text-light: #b8c5d1;
+      --bg-bot-input: #2a3441;
+      --text-bot: #d4e1ed;
+      --bg-user: #3a4a5c;
+      --text-user: #e6f1ff;
+      --border-input: #34424f;
+      --placeholder: #6b7c8a;
+      --btn-disabled: #4a5866;
+      --white: #ffffff;
+      --black: #0f1419;
+      --accent-green: #4a9eff;
+      --accent-hover: #3a8eef;
+    }
+
+    /* 主題變數 - 粉色主題 */
+    .theme-pink {
+      --bg-primary: #fdf2f8;
+      --bg-secondary: #fce7f3;
+      --text-light: #881c4f;
+      --white: #881c4f;
+      --black: #fdf2f8;
+      --bg-bot-input: #fbcfe8;
+      --text-bot: #881c4f;
+      --bg-user: #db2777;
+      --text-user: #fdf2f8;
+      --border-input: #be185d;
+      --placeholder: #9d174d;
+      --btn-disabled: #fbcfe8;
+      --accent-green: #ec4899;
+      --accent-hover: #db2777;
+    }
+
+    /* 主題變數 - 天空藍主題 */
+    .theme-sky {
+      --bg-primary: #f0f9ff;
+      --bg-secondary: #e0f2fe;
+      --text-light: #0c4a6e;
+      --white: #0c4a6e;
+      --black: #f0f9ff;
+      --bg-bot-input: #bae6fd;
+      --text-bot: #0c4a6e;
+      --bg-user: #0ea5e9;
+      --text-user: #f0f9ff;
+      --border-input: #38bdf8;
+      --placeholder: #075985;
+      --btn-disabled: #bae6fd;
+      --accent-green: #0ea5e9;
+      --accent-hover: #0284c7;
+    }
+
+    /* 主題變數 - 亮色主題 */
+    .theme-light {
+      --bg-primary: rgb(237, 233, 223);
+      --bg-secondary: rgb(255, 251, 240);
+      --text-light: rgb(25, 20, 16);
+      --white: rgb(25, 20, 16);
+      --black: rgb(255, 251, 240);
+      --bg-bot-input: rgb(225, 221, 211);
+      --text-bot: rgb(25, 20, 16);
+      --bg-user: rgb(140, 136, 126);
+      --text-user: rgb(255, 251, 240);
+      --border-input: rgb(160, 160, 160);
+      --placeholder: rgb(100, 96, 86);
+      --btn-disabled: rgb(180, 176, 166);
+      --accent-green: #9ca3af;
+      --accent-hover: #6b7280;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: "Noto Sans TC", Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header 樣式 */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      padding: 16px 24px;
+      font-size: 1.3em;
+    }
+    
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+    
+    .nav-links { 
+      display: flex; 
+      gap: 30px; 
+    }
+    
+    .nav-links > div { 
+      position: relative; 
+      padding: 0 1rem; 
+      cursor: pointer; 
+      color: var(--text-light);
+      transition: color 0.2s ease;
+    }
+    
+    .nav-links > div::before,
+    .nav-links > div::after {
+      content: "";
+      position: absolute;
+      left: 0; 
+      right: 0; 
+      height: 2px;
+      background: var(--text-light);
+      transform: scaleX(0);
+      transition: transform 0.15s ease;
+    }
+    
+    .nav-links > div::before { top: -16px; }
+    .nav-links > div::after { bottom: -16px; }
+    .nav-links > div:hover { color: var(--white); }
+    .nav-links > div:hover::before,
+    .nav-links > div:hover::after { transform: scaleX(1); }
+
+    /* 主內容區域 */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .answer-container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 40px;
+      border: 2px solid var(--border-input);
+    }
+
+    .page-title {
+      font-size: 2em;
+      margin-bottom: 30px;
+      color: var(--text-light);
+      text-align: center;
+      border-bottom: 3px solid var(--accent-green);
+      padding-bottom: 15px;
+    }
+
+    .score-summary {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border-input);
+      text-align: center;
+    }
+
+    .score-text {
+      font-size: 1.3em;
+      margin-bottom: 10px;
+      color: var(--text-light);
+    }
+
+    .score-details {
+      font-size: 1.1em;
+      color: var(--text-bot);
+    }
+
+    /* 題目容器 */
+    .question-container {
+      margin-bottom: 30px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 24px;
+      border: 1px solid var(--border-input);
+    }
+
+    /* 答錯題目的紅色邊框 */
+    .question-container.incorrect-question {
+      border: 2px solid #ef4444;
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .question-number {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--text-light);
+    }
+
+    .question-status {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    .status-correct {
+      background: #10b981;
+      color: #ffffff;
+    }
+
+    .status-incorrect {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .question-text {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+
+    /* 選項樣式 */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 2px solid var(--border-input);
+      background: var(--bg-bot-input);
+      position: relative;
+    }
+
+    .option-letter {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-right: 16px;
+      min-width: 20px;
+    }
+
+    .option-text {
+      font-size: 1em;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    /* 正確答案樣式 */
+    .option.correct {
+      background: #10b981;
+      color: #ffffff;
+      border-color: #059669;
+    }
+
+    .option.correct::after {
+      content: "✓";
+      position: absolute;
+      right: 16px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    /* 錯誤答案樣式 */
+    .option.incorrect {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+
+    .option.incorrect::after {
+      content: "✗";
+      position: absolute;
+      right: 16px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    /* 用戶選擇但錯誤的答案樣式 */
+    .option.user-wrong {
+      background: #fca5a5;
+      color: #7f1d1d;
+      border-color: #dc2626;
+    }
+
+    .option.user-wrong::after {
+      content: "你的答案";
+      position: absolute;
+      right: 16px;
+      font-size: 0.8em;
+      font-weight: bold;
+      background: #dc2626;
+      color: #ffffff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Collapse 解析區域樣式 - 復用 data-center.html 的 details 樣式 */
+    .analysis-collapse {
+      margin-top: 16px;
+      border: 1px solid var(--border-input);
+      border-radius: 4px;
+      background: var(--bg-bot-input);
+      overflow: hidden;
+    }
+
+    .analysis-collapse summary {
+      font-size: 1.1em;
+      cursor: pointer;
+      list-style: none;
+      color: var(--text-light);
+      position: relative;
+      padding: 16px 20px;
+      background: var(--bg-user);
+      transition: background-color 0.2s ease;
+      padding-left: 44px; /* 為箭頭留出空間 */
+    }
+
+    .analysis-collapse summary:hover {
+      background: var(--accent-green);
+      color: var(--black);
+    }
+
+    .analysis-collapse summary::-webkit-details-marker {
+      display: none; /* 隱藏預設的箭頭 */
+    }
+
+    .analysis-collapse summary::before {
+      content: "▶"; /* 右箭頭 */
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: currentColor;
+      transition: transform 0.2s ease;
+      font-size: 0.9em;
+    }
+
+    .analysis-collapse[open] summary::before {
+      transform: translateY(-50%) rotate(90deg); /* 展開時旋轉90度變成下箭頭 */
+    }
+
+    .analysis-content {
+      padding: 20px;
+      background: var(--bg-primary);
+      color: var(--text-bot);
+      line-height: 1.6;
+    }
+
+    .analysis-title {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: var(--accent-green);
+      margin-bottom: 12px;
+    }
+
+    .analysis-text {
+      font-size: 1em;
+      margin-bottom: 16px;
+    }
+
+    .analysis-explanation {
+      background: var(--bg-bot-input);
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid var(--accent-green);
+    }
+
+    /* Footer 樣式 */
+    .footer {
+      background: var(--bg-secondary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 18px 0;
+      text-align: center;
+      font-size: 1.14em;
+    }
+
+    /* 返回按鈕 */
+    .back-button {
+      font-family: var(--body-font, Inter, "Noto Sans TC", Arial, sans-serif);
+      font-size: 1.02rem;
+      font-weight: 600;
+      min-width: 9.5em;
+      min-height: 2.3em;
+      letter-spacing: 0.01em;
+      border: none;
+      background: var(--border-input);
+      color: var(--text-light);
+      box-shadow: 0 2px 12px var(--box-shadow-medium), 0 1.5px 4px var(--box-shadow-light);
+      cursor: pointer;
+      transition: background 0.2s cubic-bezier(.4, .09, .35, 1), color 0.2s, box-shadow .18s cubic-bezier(.4, .09, .35, 1);
+      user-select: none;
+      display: flex;
+      line-height: 1;
+      justify-content: center;
+      align-items: center;
+      height: 2rem;
+      text-decoration: none;
+      padding: 0 0.25rem;
+      margin: 30px auto 0;
+      border-radius: 4px;
+    }
+
+    .back-button:hover {
+      outline: none;
+      background: var(--bg-user);
+      color: var(--text-light);
+      box-shadow: 0 4px 24px var(--box-shadow-strong), 0 2px 8px var(--box-shadow-medium);
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .navbar-container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .nav-links {
+        gap: 20px;
+      }
+
+      .answer-container {
+        padding: 24px;
+        margin: 0 12px;
+      }
+
+      .page-title {
+        font-size: 1.6em;
+      }
+
+      .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .option {
+        padding: 12px 16px;
+      }
+
+      .analysis-collapse summary {
+        padding: 12px 16px;
+        padding-left: 36px;
+      }
+
+      .analysis-collapse summary::before {
+        left: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .score-summary {
+        padding: 16px;
+      }
+
+      .question-container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <div>Logo</div>
+      <div class="nav-links">
+        <div onclick="navigateTo('data')">資料中心</div>
+        <div onclick="navigateTo('shop')">商城</div>
+        <div onclick="navigateTo('exp')">經驗值</div>
+        <div onclick="navigateTo('settings')">設定</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容 -->
+  <main>
+    <div class="answer-container">
+      <h1 class="page-title">測驗解答</h1>
+      
+      <!-- 成績總結 -->
+      <div class="score-summary">
+        <div class="score-text">總分：75 分</div>
+        <div class="score-details">答對 3 題，答錯 1 題，共 4 題</div>
+      </div>
+
+      <!-- 題目 1 - 答對 -->
+      <div class="question-container">
+        <div class="question-header">
+          <span class="question-number">1.</span>
+          <span class="question-status status-correct">答對</span>
+        </div>
+        <div class="question-text">下列哪個是正確的 HTML 標籤語法？</div>
+        <div class="options">
+          <div class="option correct">
+            <span class="option-letter">A.</span>
+            <span class="option-text">&lt;h1&gt;標題&lt;/h1&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">B.</span>
+            <span class="option-text">&lt;h1 標題 /h1&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">C.</span>
+            <span class="option-text">&lt;h1&gt;標題&lt;h1&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">D.</span>
+            <span class="option-text">&lt;/h1&gt;標題&lt;h1&gt;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 題目 2 - 答對 -->
+      <div class="question-container">
+        <div class="question-header">
+          <span class="question-number">2.</span>
+          <span class="question-status status-correct">答對</span>
+        </div>
+        <div class="question-text">CSS 中用來設定文字顏色的屬性是？</div>
+        <div class="options">
+          <div class="option">
+            <span class="option-letter">A.</span>
+            <span class="option-text">background-color</span>
+          </div>
+          <div class="option correct">
+            <span class="option-letter">B.</span>
+            <span class="option-text">color</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">C.</span>
+            <span class="option-text">font-color</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">D.</span>
+            <span class="option-text">text-color</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 題目 3 - 答錯 -->
+      <div class="question-container incorrect-question">
+        <div class="question-header">
+          <span class="question-number">3.</span>
+          <span class="question-status status-incorrect">答錯</span>
+        </div>
+        <div class="question-text">JavaScript 中哪個關鍵字用來宣告塊級作用域的變數？</div>
+        <div class="options">
+          <div class="option">
+            <span class="option-letter">A.</span>
+            <span class="option-text">var</span>
+          </div>
+          <div class="option correct">
+            <span class="option-letter">B.</span>
+            <span class="option-text">let</span>
+          </div>
+          <div class="option user-wrong">
+            <span class="option-letter">C.</span>
+            <span class="option-text">const</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">D.</span>
+            <span class="option-text">function</span>
+          </div>
+        </div>
+
+        <!-- 解析區域 -->
+        <details class="analysis-collapse">
+          <summary>查看解析</summary>
+          <div class="analysis-content">
+            <div class="analysis-title">詳細解析</div>
+            <div class="analysis-text">
+              <strong>正確答案：B. let</strong>
+            </div>
+            <div class="analysis-explanation">
+              <p><strong>解釋：</strong></p>
+              <p>• <strong>let</strong>：ES6 引入的關鍵字，用來宣告塊級作用域的變數，不會發生變數提升問題。</p>
+              <p>• <strong>var</strong>：函數作用域，會發生變數提升，在現代 JavaScript 中較少使用。</p>
+              <p>• <strong>const</strong>：雖然也是塊級作用域，但用來宣告常數，一旦賦值後不能再修改。</p>
+              <p>• <strong>function</strong>：用來宣告函數，不是變數宣告關鍵字。</p>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- 題目 4 - 答對 -->
+      <div class="question-container">
+        <div class="question-header">
+          <span class="question-number">4.</span>
+          <span class="question-status status-correct">答對</span>
+        </div>
+        <div class="question-text">HTML 中用來建立超連結的標籤是？</div>
+        <div class="options">
+          <div class="option correct">
+            <span class="option-letter">A.</span>
+            <span class="option-text">&lt;a&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">B.</span>
+            <span class="option-text">&lt;link&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">C.</span>
+            <span class="option-text">&lt;href&gt;</span>
+          </div>
+          <div class="option">
+            <span class="option-letter">D.</span>
+            <span class="option-text">&lt;url&gt;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 返回按鈕 -->
+      <button class="back-button" onclick="goBack()">返回測驗</button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">客服信箱</footer>
+
+  <script>
+    // 導航功能
+    function navigateTo(page) {
+      console.log(`導航至：${page}`);
+      // 這裡可以添加實際的導航邏輯
+    }
+
+    // 返回功能
+    function goBack() {
+      // 可以返回上一頁或特定頁面
+      history.back();
+      // 或者導航到特定頁面
+      // window.location.href = 'quiz.html';
+    }
+
+    // 主題切換功能（可以通過外部調用）
+    function changeTheme(theme) {
+      const body = document.body;
+      
+      // 移除所有主題類別
+      body.classList.remove('theme-blue', 'theme-pink', 'theme-sky', 'theme-light');
+      
+      // 套用新主題
+      if (theme !== 'dark') {
+        body.classList.add(`theme-${theme}`);
+      }
+      
+      // 儲存主題設定
+      localStorage.setItem('selectedTheme', theme);
+    }
+
+    // 初始化頁面
+    function initializePage() {
+      // 載入已儲存的主題
+      const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
+      if (savedTheme !== 'dark') {
+        document.body.classList.add(`theme-${savedTheme}`);
+      }
+
+      // 自動展開第一個錯題的解析（可選）
+      const firstIncorrectAnalysis = document.querySelector('.status-incorrect').closest('.question-container').querySelector('.analysis-collapse');
+      if (firstIncorrectAnalysis) {
+        // 如果需要預設展開，可以取消這行註解
+        // firstIncorrectAnalysis.open = true;
+      }
+    }
+
+    // 頁面載入完成後初始化
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>
